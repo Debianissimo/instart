@@ -124,6 +124,7 @@ class MyWidget(QtWidgets.QWidget):
         self.fullnameEdit = QtWidgets.QLineEdit("Ordissimo")
         self.usernameEdit = QtWidgets.QLineEdit("ordissimo")
         self.passwordEdit = QtWidgets.QLineEdit("ordissimo")
+        self.passwordEdit.setEchoMode(QtWidgets.QLineEdit.Password)
         self.spacer = QtWidgets.QSpacerItem(
             20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
         )

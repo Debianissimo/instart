@@ -73,7 +73,7 @@ async def feed(request, ws: WebSocketCommonProtocol):
     while True:
         data = await ws.recv()
         print(f"[v] {data}")
-        print(f"[D] {config}")
+        print(f"[D] {config}") # debuggete
         await asyncio.sleep(0.2)
         try:
             data = json.loads(data)
