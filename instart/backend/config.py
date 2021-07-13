@@ -3,16 +3,16 @@ from box import Box
 
 class Config(Box):
     languages = {
-        "en-us": "Inglese",
         "it-it": "Italiano",
-        "fr-fr": "Francese",
-        "nl-nl": "Placeholder.",
-        "be": "Placeholder.",
-        "ca": "Placeholder.",
-        "dz": "Placeholder.",
-        "gb": "Placeholder.",
-        "lu": "Placeholder.",
-        "ma": "Placeholder.",
+        "be": "Bielorusso",
+        "ca": "Catalano",
+        "dz": "Arabo (Algeria)",
         "de-de": "Tedesco",
         "es-es": "Spagnolo",
+        "en-us": "Inglese (Stati Uniti)",
+        "fr-fr": "Francese",
+        "gb": "Inglese (Regno Unito)",
+        "lu": "Francese (Lussemburgo)",
+        "ma": "Arabo (Morocco)",
+        "nl-nl": "Olandese (Paesi Bassi)",
     }
