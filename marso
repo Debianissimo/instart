@@ -8,4 +8,4 @@ unit: sectors
 /dev/sda5 : start=    31037440, size=    59998208, type=83
 /dev/sda6 : start=    91037696, size=     1998848, type=82
 /dev/sda7 : start=    93038592, size=      974848, type=83
-/dev/sda8 : start=    94015488, size=   176515072, type=83
+/dev/sda8 : start=    94015488, size=   -1, type=83
