@@ -12,6 +12,7 @@ requirements = [
     "websocket-client",
     "python-box",
     "qasync",
+    "hurry.filesize",
 ]
 
 setup(

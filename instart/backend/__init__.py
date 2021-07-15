@@ -23,10 +23,17 @@
 # metti sanic the hedgehog
 # lol ok
 
+# sera chicco di caffùù
+# dobbiamo applicare nel client quello che ho fatto, cioè mettere una lista di partizioni che il frontend chiederà al backend
+# farro
+# lol si
+
+
 import asyncio
 import json
 import random
 import sanic
+import subprocess
 from sanic import response
 from websockets.legacy.protocol import WebSocketCommonProtocol
 from asyncio import Event
@@ -42,7 +49,7 @@ class instartBackend(sanic.Sanic):
         self.status = "not_ready"
 
 
-app = instartBackend()
+app = instartBackend(__name__)
 config = Config()
 
 
@@ -51,7 +58,7 @@ async def ciao(request):  # hello word fatto
     return response.text(
         "test"
         + (
-            random.choice(["ù", "à", "è", "ì", "ò", "+", "lgbtqìùèòàèìòùàp"])
+            random.choice(["ù", "à", "è", "ì", "ò", "+"])
             * random.choice(
                 [
                     1,
@@ -69,11 +76,11 @@ async def ciao(request):  # hello word fatto
 async def feed(request, ws: WebSocketCommonProtocol):
     # roba temporanea
     app._ready.set()
-    result = "SEI UN MUSO MARSO."
+    result = "SEI UN MUSO MARSO"
     while True:
         data = await ws.recv()
         print(f"[v] {data}")
-        print(f"[D] {config}") # debuggete
+        print(f"[D] {config}")  # debuggete
         await asyncio.sleep(0.2)
         try:
             data = json.loads(data)
@@ -91,14 +98,35 @@ async def feed(request, ws: WebSocketCommonProtocol):
                 result = "ready"
             elif data == "languages":
                 result = json.dumps(config.languages)
+            elif data == "disks":
+                disks = [
+                    a
+                    for a in (
+                        await app.loop.run_in_executor(
+                            None,
+                            lambda: subprocess.run(
+                                "lsblk -b -d -o NAME,SIZE",
+                                shell=True,
+                                capture_output=True,
+                            ),
+                        )
+                    )
+                    .stdout.decode()
+                    .split("\n")
+                    if "sd" in a
+                ]
+                result = {}
+                for disk in disks:
+                    result[disk.split()[0]] = int(disk.split()[1])
+                result = json.dumps(result)
             elif data == "close":
                 app.status = "not_ready"
                 result = "closed"
         else:
             result = json.dumps(await responses.getResponse(app, config, data))
 
-        print(f"[^] {result}")
         await ws.send(result)
+        print(f"[^] {result}")
         if result == "closed":
             await ws.close()
         print()

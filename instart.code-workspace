@@ -7,17 +7,5 @@
     ],
     "settings": {
         "python.pythonPath": "/usr/bin/python3"
-    },
-    "launch": {
-        "version": "0.2.0",
-        "configurations": [
-            {
-                "name": "Instart",
-                "type": "python",
-                "request": "launch",
-                "program": "main.py",
-                "console": "integratedTerminal"
-            }
-        ]
     }
 }

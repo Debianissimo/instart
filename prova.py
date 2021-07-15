@@ -10,6 +10,7 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
+
 class wgt(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -91,6 +92,35 @@ class wgt(QtWidgets.QWidget):
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout_4.addWidget(self.pushButton)
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
+
+
+# SERA
+# seha buona, seha anche a lei fleny col suo tuna
+# lol.
+# seha 🐟🐟🐟🐟🐟 (io sui codici saluto con i tuna 😀 )
+# sera a tutti i tunafdsgf allpor allora, non posso ne cancellare ne andare a capo
+# emh ok...
+# ewhm idem ah eccolo apriamo vscode WHY SENZA UTENTE?!
+# perche stiamo facendo qualcosa per debianissimo
+# che e basato su ordissimo
+# che ti deve semplificare la vita
+# quindi a chi servono gli utenti!
+# OvViAmEnTe nEsSuNo
+# stano
+# BONA SERA E MO POSSO CANCELLARE YEEEEEE
+# grafie per avermi cancellato il messaggio :)
+# ma io ho ancora https://en.wikipedia.org/wiki/Zen_of_Python aperto
+# cosa devi fare vincy?
+# cmq io non vedo il cursore di vincy
+# sono qui
+# mo lo vedo
+# grafie liveshare
+# liveshare: prefo
+# comunque dovrei capire perchè manda solo alcune cose e poi si ferma
+# ora sto cambiando modulo, uso uno già async 🐟🐟🐟🐟🐟
+# ok
+# si va a vedere la doc
+# a ma non siamo nel modulo, siamo nel file sbagliato lmfao
 
 
 if __name__ == "__main__":
