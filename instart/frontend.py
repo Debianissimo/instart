@@ -14,19 +14,15 @@ import asyncio
 import traceback
 import aiohttp
 import signal
-import functools
 import random
-import sys
 
 import qasync
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QSizePolicy
 from qasync import asyncSlot
-import json
-from websocket._exceptions import WebSocketConnectionClosedException
 from base64 import b64encode
-from .client import BackendClient
 from hurry.filesize import size, alternative as alternative_size_system
+from .backend import Backend
 
 
 class MyWidget(QtWidgets.QWidget):
@@ -50,7 +46,7 @@ class MyWidget(QtWidgets.QWidget):
             "Buonasera!",
             "OUI!",
         ]
-        self.backend = BackendClient(wg=self)
+        self.backend = Backend(loop)
         self.mainlayout = QtWidgets.QVBoxLayout(self)
         self.qlayout = QtWidgets.QGridLayout()
         self._ready = False
@@ -79,26 +75,31 @@ class MyWidget(QtWidgets.QWidget):
         self.nextbutton.clicked.connect(self.nextStep)
         self.backbutton.clicked.connect(self.prevStep)
 
-        self.title = QtWidgets.QLabel("Scegli una lingua")
+        self.title = QtWidgets.QLabel(
+            "Scegli una lingua", alignment=QtCore.Qt.AlignLeft
+        )
 
-        self.title.setSizePolicy(self.policy)
+        # self.title.setSizePolicy(self.policy)
         font = QtGui.QFont()
         font.setPointSize(22)
         self.title.setFont(font)
         self.title.setWordWrap(True)
         self.subtitle = QtWidgets.QLabel(
             "Scegli una lingua tra quelle qui sotto.\n"
-            "Attenzione: Dato che è Ordissimo, basta un click sull'opzione per procedere."
+            "Attenzione: Dato che è Ordissimo, basta un click sull'opzione per procedere.",
+            alignment=QtCore.Qt.AlignLeft,
         )
 
         self.buttonslayout = QtWidgets.QHBoxLayout()
-        sizePolicy = QtWidgets.QSizePolicy(
+        self.subtitlePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
         )
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.subtitle.sizePolicy().hasHeightForWidth())
-        self.subtitle.setSizePolicy(sizePolicy)
+        self.subtitlePolicy.setHorizontalStretch(0)
+        self.subtitlePolicy.setVerticalStretch(0)
+        self.subtitlePolicy.setHeightForWidth(
+            self.subtitle.sizePolicy().hasHeightForWidth()
+        )
+        self.subtitle.setSizePolicy(self.subtitlePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
         self.subtitle.setFont(font)
@@ -112,7 +113,6 @@ class MyWidget(QtWidgets.QWidget):
         self.listWidget = QtWidgets.QListWidget()
         self.listWidget.setFont(font)
         QtCore.QMetaObject.connectSlotsByName(self)
-        self.lingue = {}
         self.stepsDone = -2
         self.fullnameEdit = QtWidgets.QLineEdit("Ordissimo")
         self.usernameEdit = QtWidgets.QLineEdit("ordissimo")
@@ -130,6 +130,16 @@ class MyWidget(QtWidgets.QWidget):
         self.fullnameEdit.setClearButtonEnabled(True)
         self.usernameEdit.textChanged.connect(self.enableNextButtonOnUsernameOrPassword)
         self.passwordEdit.textChanged.connect(self.enableNextButtonOnUsernameOrPassword)
+        self.progressBar = QtWidgets.QProgressBar()
+        barFont = QtGui.QFont()
+        barFont.setPointSize(10)
+        barFont.setWeight(75)
+        barFont.setBold(True)
+        self.progressBar.setFont(barFont)
+        self.subProgressText = QtWidgets.QLabel()
+        self.subProgressText.setFont(font)
+        self.subProgressText.setWordWrap(True)
+        self.progressBar.setFormat("Progresso: %p%")
 
     def enableNextButtonOnUsernameOrPassword(self, _):
         self.nextbutton.setEnabled(
@@ -150,11 +160,9 @@ class MyWidget(QtWidgets.QWidget):
         fullname = self.fullnameEdit.text()
         username = self.usernameEdit.text()
         password = b64encode(self.passwordEdit.text().encode())
-        await self.backend.send(
-            user_fullname=fullname,
-            username=username,
-            password=password.decode(),  # mo va...
-        )
+        self.backend.user_fullname = fullname
+        self.backend.username = username
+        self.backend.password = password.decode()  # mo va...
         self.onlyStopLoading()
         self.nextbutton.clicked.disconnect()
         self.nextbutton.clicked.connect(self.nextStep)
@@ -167,11 +175,9 @@ class MyWidget(QtWidgets.QWidget):
 
     @asyncSlot()
     async def setLanguage(self, che):
-        keys = list(self.lingue.keys())
+        keys = list(self.backend.languages.keys())
         curr = self.listWidget.currentRow()
-        self.startLoading()
-        await self.backend.send(language=keys[curr])
-        self.onlyStopLoading()
+        self.backend.language = keys[curr]
         await self.nextStep()
 
     async def moveToUsers(self):
@@ -214,11 +220,10 @@ class MyWidget(QtWidgets.QWidget):
         except RuntimeError:
             pass
         self.listWidget.itemClicked.connect(self.setLanguage)
-        self.lingue: dict = json.loads(await self.backend.send("languages"))
 
         self.listWidget.clear()
 
-        for i, lingua in enumerate(self.lingue.values()):
+        for i, lingua in enumerate(self.backend.languages.values()):
             QtWidgets.QListWidgetItem(self.listWidget)
             self.listWidget.item(i).setText(lingua)
 
@@ -233,19 +238,73 @@ class MyWidget(QtWidgets.QWidget):
         self.listWidget.show()
 
     @asyncSlot()
-    async def confirmDiskChoice(self, wat):
+    async def setDisk(self):
+        self.nextbutton.clicked.disconnect()
+        self.nextbutton.clicked.connect(self.nextStep)
         keys = list(self.disks.keys())
         curr = self.listWidget.currentRow()
-        print(keys[curr])
+        self.backend.disk = f"/dev/{keys[curr]}"
+        await self.installSystem()
 
+    @asyncSlot()
+    async def installSystem(self):
+        self.startLoading()
+        self.title.setText("Installazione del sistema...")
+        self.subtitle.setText(
+            "Sto installando il sistema Ordissimo con gli strumenti Debianissimo. "
+            "Potrebbe volerci un po' visto che sto installando anche i pacchetti "
+            "che puoi trovare nello store."
+        )
+        self.onlyStopLoading()
+        self.qlayout.addWidget(self.title)
+        self.title.show()
+        self.qlayout.addWidget(self.subtitle)
+        self.subtitle.show()
+        self.qlayout.addWidget(self.progressBar)
+        self.progressBar.show()
+        self.qlayout.addWidget(self.subProgressText)
+        self.subProgressText.show()
+        self.qlayout.addItem(self.spacer)
+        await self.backend.install(self.progressBar, self.subProgressText)
+
+    @asyncSlot()
+    async def confirmDiskChoice(self, wat):
+        self.startLoading()
+        self.onlyStopLoading()
+        self.nextbutton.clicked.disconnect()
+        self.nextbutton.clicked.connect(self.setDisk)
+        self.backbutton.clicked.disconnect()
+        self.backbutton.clicked.connect(self.moveToPartitions)
+        self.title.setText("Sei sicuro?")
+        self.subtitle.setText(
+            "Sei sicuro di aver scelto il disco giusto? Il disco selezionato verrà formattato, "
+            "quindi, dopo questa operazione, perderai TUTTI i dati presenti su quel disco!\n"
+            "Noi non ci assumiamo alcuna responsabilità di quello che fai. Il tuo computer è il tuo computer."
+        )
+        self.backbutton.setText("‹ No")
+        self.nextbutton.setText("Sì ›")
+
+        self.qlayout.addWidget(self.title)
+        self.title.show()
+        self.qlayout.addWidget(self.subtitle)
+        self.subtitle.show()
+        self.qlayout.addItem(self.spacer)
+        self.buttonslayout.addWidget(self.backbutton, alignment=QtCore.Qt.AlignLeft)
+        self.backbutton.show()
+        self.buttonslayout.addWidget(self.nextbutton, alignment=QtCore.Qt.AlignRight)
+        self.nextbutton.show()
+
+    @asyncSlot()
     async def moveToPartitions(self):
         try:
             self.listWidget.itemClicked.disconnect()
         except RuntimeError:
             pass
         self.listWidget.itemClicked.connect(self.confirmDiskChoice)
+        self.backbutton.clicked.disconnect()
+        self.backbutton.clicked.connect(self.prevStep)
         self.startLoading()
-        self.disks: dict = json.loads(await self.backend.send("disks"))
+        self.disks: dict = await self.backend.disks()
 
         self.title.setText("Scegli il disco")
         self.subtitle.setText(
@@ -278,6 +337,8 @@ class MyWidget(QtWidgets.QWidget):
 
             grandezza = size(grandezza, alternative_size_system)
             self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
+            if nome == "sda":
+                self.listWidget.item(i).setHidden(True)
 
         self.onlyStopLoading()
         self.qlayout.addWidget(self.title)
@@ -337,6 +398,9 @@ class MyWidget(QtWidgets.QWidget):
     async def nextStep(self):  # ora lo cambio in modo che vada sul coso
         # self.text.setText(random.choice(self.hello))
         # self.text.setText("muso marso devi aspettare la risposta..")
+        self.startLoading()
+        self.backbutton.setText("‹ Indietro")
+        self.nextbutton.setText("Avanti ›")
         if self.stepsDone == -2:
             while not self.connected:
                 self.nextbutton.setEnabled(False)
@@ -358,23 +422,14 @@ class MyWidget(QtWidgets.QWidget):
                 )
                 self.connected = True
 
-        self.startLoading()
-        if not self._ready:
-            status = await self.backend.send("status")
-            while status != "ready":
-                status = await self.backend.send("start")
-
-            self._ready = True
-
         self.onlyStopLoading()
 
-        self.nextbutton.setText("Avanti ›")
         self.stepsDone += 1
         if self.stepsDone == -1:
             await self.moveToLanguages()
         elif self.stepsDone == 0:
-            await self.moveToUsers()
-        elif self.stepsDone == 1:
+        #    await self.moveToUsers()
+        #elif self.stepsDone == 1:
             await self.moveToPartitions()
 
         # ho sminchiato tutto come al solito :D ah si guarda che range ha due proprietà
@@ -384,28 +439,24 @@ class MyWidget(QtWidgets.QWidget):
 
     @asyncSlot()
     async def prevStep(self):
+        self.backbutton.setText("‹ Indietro")
+        self.nextbutton.setText("Avanti ›")
         self.startLoading()
-        if not self._ready:
-            status = await self.backend.send("status")
-            while status != "ready":
-                status = await self.backend.send("start")
-
-            self._ready = True
         self.onlyStopLoading()
 
         self.stepsDone -= 1
         if self.stepsDone == -1:
             await self.moveToLanguages()
         elif self.stepsDone == 0:
-            await self.moveToUsers()
-        elif self.stepsDone == 1:
+        #    await self.moveToUsers()
+        #elif self.stepsDone == 1:
             await self.moveToPartitions()
 
 
 async def main():
     _connection_error = None
     loop = asyncio.get_event_loop()
-    future = asyncio.Future()
+    future = loop.create_future()
 
     async with aiohttp.ClientSession(loop=loop) as session:
         try:
@@ -418,33 +469,31 @@ async def main():
 
     app = QtWidgets.QApplication.instance()
     mainWindow = MyWidget(loop)
-    await mainWindow.backend.run()
     mainWindow.show()
 
     mainWindow.connected = _connection_error is None
 
-    def handle_close(*args):
+    def close(*args):
         """Handler for the SIGINT signal."""
-        try:
-            loop.create_task(mainWindow.backend.send("close"))
-
-            loop.create_task(
-                mainWindow.backend.ws.close()
-            )  # ws = NoneType dice d'errore direi, come risolviamo? esiste stackoverflow.....asyncSlot (ok autocompilazione dopo i .... mi ha consigliato asyncSlot) lmfao
-            # esatto
-        except Exception:  # ma se metti except e basat? (quindi tutti gli errori se non erro)
-            pass
+        loop.call_later(10, future.cancel)
         future.cancel()
-        app.quit()
+        # try:
+        #    for task in asyncio.all_tasks(loop):
+        #        task.cancel()
+        # except asyncio.CancelledError:
+        #   pass
+        if not "marso" in args:
+            app.quit()
+        loop.stop()
 
-    signal.signal(signal.SIGINT, handle_close)
-    signal.signal(signal.SIGTERM, handle_close)
+    signal.signal(signal.SIGINT, close)
+    signal.signal(signal.SIGTERM, close)
     timer = QtCore.QTimer()
     timer.start(0)
     timer.timeout.connect(lambda: None)
 
     if hasattr(app, "aboutToQuit"):
-        app.aboutToQuit.connect(handle_close)
+        app.aboutToQuit.connect(close)
 
     await future
     # aspetta anche tu il futuro XD

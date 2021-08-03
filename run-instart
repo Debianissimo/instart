@@ -1,0 +1,3 @@
+#!/bin/bash
+# fatto per essere avviato dal file .desktop
+instart &> /tmp/instart.log
