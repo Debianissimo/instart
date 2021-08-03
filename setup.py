@@ -34,6 +34,7 @@ requirements = [
     "qasync",
     "hurry.filesize",
     "pyparted",
+    "aiohttp"
 ]
 
 setup(
