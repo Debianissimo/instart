@@ -337,8 +337,8 @@ class MyWidget(QtWidgets.QWidget):
 
             grandezza = size(grandezza, alternative_size_system)
             self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
-            if nome == "sda":
-                self.listWidget.item(i).setHidden(True)
+            #if nome == "sda":
+            #    self.listWidget.item(i).setHidden(True)
 
         self.onlyStopLoading()
         self.qlayout.addWidget(self.title)
