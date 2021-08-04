@@ -180,7 +180,6 @@ class MyWidget(QtWidgets.QWidget):
         self.buttonslayout.addWidget(self.nextbutton, alignment=QtCore.Qt.AlignRight)
         self.nextbutton.show()
 
-
     @asyncSlot()
     async def setDisk(self):
         self.nextbutton.clicked.disconnect()
@@ -281,7 +280,7 @@ class MyWidget(QtWidgets.QWidget):
 
             grandezza = size(grandezza, alternative_size_system)
             self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
-            #if nome == "sda":
+            # if nome == "sda":
             #    self.listWidget.item(i).setHidden(True)
 
         self.onlyStopLoading()
@@ -370,8 +369,8 @@ class MyWidget(QtWidgets.QWidget):
 
         self.stepsDone += 1
         if self.stepsDone == -1:
-        #    await self.moveToUsers()
-        #elif self.stepsDone == 0:
+            #    await self.moveToUsers()
+            # elif self.stepsDone == 0:
             await self.moveToPartitions()
 
         # ho sminchiato tutto come al solito :D ah si guarda che range ha due proprietà
@@ -388,8 +387,8 @@ class MyWidget(QtWidgets.QWidget):
 
         self.stepsDone -= 1
         if self.stepsDone == -1:
-        #    await self.moveToUsers()
-        #elif self.stepsDone == 1:
+            #    await self.moveToUsers()
+            # elif self.stepsDone == 1:
             await self.moveToPartitions()
 
 

@@ -81,9 +81,7 @@ class Progress(base.InstallProgress):
         """(Abstract) Called when the APT status changed."""
         perc = round(percent)
         sendjson(
-            text="Installazione dei pacchetti. {perc}% installato.".format(
-                perc=perc
-                ),
+            text="Installazione dei pacchetti. {perc}% installato.".format(perc=perc),
             pkg=pkg,
             percent=percent,
             status=status,
