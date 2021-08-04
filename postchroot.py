@@ -117,7 +117,7 @@ ordissimo = cache["ordissimo"]
 ordissimo.mark_install()
 terminalissimo = cache["terminalissimo"]
 terminalissimo.mark_install()
-langue = cache["ordissimo-langue-{}".format(language)]
+langue = cache["ordissimo-langue-all"]
 langue.mark_install()
 neofetch = cache["neofetch"]
 neofetch.mark_install()
