@@ -46,7 +46,7 @@ class Backend:
         }
         try:
             await self.loop.run_in_executor(
-                None, lambda: os.system("sudo umount -R /target; sudo rm -rf /target")
+                None, lambda: os.system("sudo umount -Rfl /target; sudo rm -rf /target")
             )
         except Exception:
             pass
@@ -116,7 +116,7 @@ class Backend:
         self.text = text
 
         # formattazione
-        # '''
+        # '''
         self.setProgress(0, "Formattazione del disco...")
         try:
             await self.partition()
@@ -162,7 +162,7 @@ class Backend:
             ):  # cifra completa: 10.025316455696203
                 break
 
-        #for code in [
+        # for code in [
         await self.loop.run_in_executor(
             None,
             lambda: os.system(f"sudo mount -t proc /proc /target/proc"),
@@ -175,7 +175,7 @@ class Backend:
             None,
             lambda: os.system(f"sudo mount --rbind /sys /target/sys"),
         ),
-        #]:
+        # ]:
         #    if code != 0:
         #        self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
         #        return

@@ -59,11 +59,11 @@ subprocess.run(
 open("/etc/apt/sources.list", "w").write(
     """
 deb [arch=amd64] http://substantielwww.dyndns.org sr2018-stable main non-free
-#deb-src http://substantielwww.dyndns.org          sr2018-stable main non-free
+deb-src http://substantielwww.dyndns.org          sr2018-stable main non-free
 deb [arch=amd64] http://cdn.debianissimo.cf/repos debianissimo  main
 # Uncommenta questa repo se vuoi usare i pacchetti dell'archivio Debian.
 # ATTENZIONE: Potrebbe rompere il sistema.
-deb [arch=amd64] http://deb.debian.org/debian stretch main non-free contrib
+#deb [arch=amd64] http://deb.debian.org/debian stretch main non-free contrib
 """
 )
 os.system("apt update")
@@ -81,9 +81,7 @@ class Progress(base.InstallProgress):
         """(Abstract) Called when the APT status changed."""
         perc = round(percent)
         sendjson(
-            text="Installazione dei pacchetti. {perc}% installato.".format(
-                perc=perc
-                ),
+            text="Installazione dei pacchetti. {perc}% installato.".format(perc=perc),
             pkg=pkg,
             percent=percent,
             status=status,
@@ -117,8 +115,6 @@ ordissimo = cache["ordissimo"]
 ordissimo.mark_install()
 terminalissimo = cache["terminalissimo"]
 terminalissimo.mark_install()
-langue = cache["ordissimo-langue-{}".format(language)]
-langue.mark_install()
 neofetch = cache["neofetch"]
 neofetch.mark_install()
 prog = Progress()
@@ -126,4 +122,11 @@ fprog = FProgress()
 cache.commit(install_progress=prog, fetch_progress=fprog)
 
 subprocess.run("lilo", shell=True)
+if language != "en-us":
+    cache["ordissimo-langue-en-us"].mark_delete(purge=True)
+    cache["ordissimo-langue-en-us-base"].mark_delete(purge=True)
+    cache["ordissimo-langue-en-us-apps"].mark_delete(purge=True)
+    cache["ordissimo-langue-{}".format(language)].mark_install()
+    cache["ordissimo"].mark_install()
+    cache.commit()
 sendjson(status="finished")
