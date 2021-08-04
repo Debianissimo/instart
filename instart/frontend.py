@@ -74,31 +74,6 @@ class MyWidget(QtWidgets.QWidget):
 
         self.nextbutton.clicked.connect(self.nextStep)
         self.backbutton.clicked.connect(self.prevStep)
-
-        self.title = QtWidgets.QLabel(
-            "Scegli una lingua", alignment=QtCore.Qt.AlignLeft
-        )
-
-        # self.title.setSizePolicy(self.policy)
-        font = QtGui.QFont()
-        font.setPointSize(22)
-        self.title.setFont(font)
-        self.title.setWordWrap(True)
-        self.subtitle = QtWidgets.QLabel(
-            "Scegli una lingua tra quelle qui sotto.\n"
-            "Attenzione: Dato che è Ordissimo, basta un click sull'opzione per procedere.",
-            alignment=QtCore.Qt.AlignLeft,
-        )
-
-        self.buttonslayout = QtWidgets.QHBoxLayout()
-        self.subtitlePolicy = QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
-        )
-        self.subtitlePolicy.setHorizontalStretch(0)
-        self.subtitlePolicy.setVerticalStretch(0)
-        self.subtitlePolicy.setHeightForWidth(
-            self.subtitle.sizePolicy().hasHeightForWidth()
-        )
         self.subtitle.setSizePolicy(self.subtitlePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -173,13 +148,6 @@ class MyWidget(QtWidgets.QWidget):
         # )
         # praticamente ho messo che per impostare l'utente vada di mezzo step perchè così quando fa il nextStep va a dire al backend la configurazione e poi va avanti
 
-    @asyncSlot()
-    async def setLanguage(self, che):
-        keys = list(self.backend.languages.keys())
-        curr = self.listWidget.currentRow()
-        self.backend.language = keys[curr]
-        await self.nextStep()
-
     async def moveToUsers(self):
         self.nextbutton.clicked.disconnect()
         self.nextbutton.clicked.connect(self.setUser)
@@ -212,30 +180,6 @@ class MyWidget(QtWidgets.QWidget):
         self.buttonslayout.addWidget(self.nextbutton, alignment=QtCore.Qt.AlignRight)
         self.nextbutton.show()
 
-    async def moveToLanguages(self):
-
-        self.startLoading()
-        try:
-            self.listWidget.itemClicked.disconnect()
-        except RuntimeError:
-            pass
-        self.listWidget.itemClicked.connect(self.setLanguage)
-
-        self.listWidget.clear()
-
-        for i, lingua in enumerate(self.backend.languages.values()):
-            QtWidgets.QListWidgetItem(self.listWidget)
-            self.listWidget.item(i).setText(lingua)
-
-        self.onlyStopLoading()
-        # questo è movetolanguages non movetopartitions
-        # sono un mona seriale
-        self.qlayout.addWidget(self.title)
-        self.title.show()
-        self.qlayout.addWidget(self.subtitle)
-        self.subtitle.show()
-        self.qlayout.addWidget(self.listWidget)
-        self.listWidget.show()
 
     @asyncSlot()
     async def setDisk(self):
@@ -426,10 +370,8 @@ class MyWidget(QtWidgets.QWidget):
 
         self.stepsDone += 1
         if self.stepsDone == -1:
-            await self.moveToLanguages()
-        elif self.stepsDone == 0:
         #    await self.moveToUsers()
-        #elif self.stepsDone == 1:
+        #elif self.stepsDone == 0:
             await self.moveToPartitions()
 
         # ho sminchiato tutto come al solito :D ah si guarda che range ha due proprietà
@@ -446,8 +388,6 @@ class MyWidget(QtWidgets.QWidget):
 
         self.stepsDone -= 1
         if self.stepsDone == -1:
-            await self.moveToLanguages()
-        elif self.stepsDone == 0:
         #    await self.moveToUsers()
         #elif self.stepsDone == 1:
             await self.moveToPartitions()
