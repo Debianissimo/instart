@@ -7,7 +7,6 @@ import subprocess
 from hurry.filesize import size, alternative
 
 os.environ["DEBIAN_FRONTEND"] = "noninteractive"
-language = os.environ["LANGUE"]
 
 os.chroot("/target")
 os.chdir("/")
@@ -113,6 +112,8 @@ cache.update()
 
 ordissimo = cache["ordissimo"]
 ordissimo.mark_install()
+langue = cache["ordissimo-langue-all"]
+langue.mark_install()
 terminalissimo = cache["terminalissimo"]
 terminalissimo.mark_install()
 neofetch = cache["neofetch"]
@@ -122,11 +123,4 @@ fprog = FProgress()
 cache.commit(install_progress=prog, fetch_progress=fprog)
 
 subprocess.run("lilo", shell=True)
-if language != "en-us":
-    cache["ordissimo-langue-en-us"].mark_delete(purge=True)
-    cache["ordissimo-langue-en-us-base"].mark_delete(purge=True)
-    cache["ordissimo-langue-en-us-apps"].mark_delete(purge=True)
-    cache["ordissimo-langue-{}".format(language)].mark_install()
-    cache["ordissimo"].mark_install()
-    cache.commit()
 sendjson(status="finished")

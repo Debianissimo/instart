@@ -17,24 +17,24 @@ class Backend:
         self.bar: QProgressBar = None
         self.text: QLabel = None
         self.loop = loop
-        self.languages = {
-            "en-us": "Inglese (Stati Uniti)",
-            "it-it": "Italiano",
-            "be": "Bielorusso",
-            "ca": "Catalano",
-            "dz": "Arabo (Algeria)",
-            "de-de": "Tedesco",
-            "fr-fr": "Francese",
-            "lu": "Francese (Lussemburgo)",
-            "ma": "Arabo (Marocco)",
-            "nl-nl": "Olandese (Paesi Bassi)",
-            "es-es": "Spagnolo",
-            "gb": "Inglese (Regno Unito) (ultimo giusto per fare un dispetto all'Inghilterra, ma per me sarebbe ultimo lo spagnolo :))",
-        }
-        self.language = "en-us"
-        self.user_fullname = "Ordissimo"
-        self.username = "ordissimo"
-        self.password = "b3JkaXNzaW1v"
+        # self.languages = {
+        #    "en-us": "Inglese (Stati Uniti)",
+        #    "it-it": "Italiano",
+        #    "be": "Bielorusso",
+        #    "ca": "Catalano",
+        #    "dz": "Arabo (Algeria)",
+        #    "de-de": "Tedesco",
+        #    "fr-fr": "Francese",
+        #    "lu": "Francese (Lussemburgo)",
+        #    "ma": "Arabo (Marocco)",
+        #    "nl-nl": "Olandese (Paesi Bassi)",
+        #    "es-es": "Spagnolo",
+        #    "gb": "Inglese (Regno Unito) (ultimo giusto per fare un dispetto all'Inghilterra, ma per me sarebbe ultimo lo spagnolo :))",
+        # }
+        # self.language = "en-us"
+        # self.user_fullname = "Ordissimo"
+        # self.username = "ordissimo"
+        # self.password = "b3JkaXNzaW1v"
         self.disk = ""
 
     async def partition(self):
@@ -186,7 +186,6 @@ class Backend:
         # '''
         insttexxt = "Sto installando i pacchetti Ordissimo"
         self.text.setText(insttexxt + ".")
-        os.environ["LANGUE"] = self.language
 
         postchroot = await self.loop.run_in_executor(
             None,

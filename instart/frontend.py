@@ -76,9 +76,7 @@ class MyWidget(QtWidgets.QWidget):
         self.nextbutton.clicked.connect(self.nextStep)
         self.backbutton.clicked.connect(self.prevStep)
 
-        self.title = QtWidgets.QLabel(
-            "Scegli una lingua", alignment=QtCore.Qt.AlignLeft
-        )
+        self.title = QtWidgets.QLabel(alignment=QtCore.Qt.AlignLeft)
 
         # self.title.setSizePolicy(self.policy)
         font = QtGui.QFont()
@@ -86,8 +84,6 @@ class MyWidget(QtWidgets.QWidget):
         self.title.setFont(font)
         self.title.setWordWrap(True)
         self.subtitle = QtWidgets.QLabel(
-            "Scegli una lingua tra quelle qui sotto.\n"
-            "Attenzione: Dato che è Ordissimo, basta un click sull'opzione per procedere.",
             alignment=QtCore.Qt.AlignLeft,
         )
 
@@ -348,8 +344,8 @@ class MyWidget(QtWidgets.QWidget):
         self.subtitle.show()
         self.qlayout.addWidget(self.listWidget)  # si sono un riutilizzatore di widget
         self.listWidget.show()
-        self.qlayout.addWidget(self.backbutton)
-        self.backbutton.show()
+        # self.qlayout.addWidget(self.backbutton)
+        # self.backbutton.show()
 
         # VEENCY EXPOSD, non è super
         # dovrei cambiare l'username di github
@@ -427,8 +423,8 @@ class MyWidget(QtWidgets.QWidget):
 
         self.stepsDone += 1
         if self.stepsDone == -1:
-            await self.moveToLanguages()
-        elif self.stepsDone == 0:
+            # await self.moveToLanguages()
+            # elif self.stepsDone == 0:
             #    await self.moveToUsers()
             # elif self.stepsDone == 1:
             await self.moveToPartitions()
