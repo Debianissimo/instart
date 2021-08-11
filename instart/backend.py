@@ -3,8 +3,8 @@ import json
 import os
 import subprocess
 from .partitioning import partition
-from PySide2.QtWidgets import QProgressBar, QLabel
-
+from PySide2.QtWidgets import QProgressBar, QLabel, QWidget
+from PySide2.QtCore import QTimer
 
 class PartitionError(Exception):
     pass
@@ -13,10 +13,13 @@ class PartitionError(Exception):
 class Backend:
     _expected_debootstrap_output = json.load(open("/usr/share/instart/output.json"))
 
-    def __init__(self, loop: asyncio.BaseEventLoop):
+    def __init__(self, widget: QWidget):
+        from .frontend import MyWidget
         self.bar: QProgressBar = None
         self.text: QLabel = None
-        self.loop = loop
+        self.widget: MyWidget = widget
+        self.rebootimer: QTimer = widget.rebootimer
+        self.loop: asyncio.BaseEventLoop = widget.loop
         # self.languages = {
         #    "en-us": "Inglese (Stati Uniti)",
         #    "it-it": "Italiano",
@@ -111,6 +114,9 @@ class Backend:
         )  # convertito alla classe str in modo che non impazzisca nel caso l'istanza non fosse str
         self.bar.setProperty("value", progress)
 
+    def reboo(*args, **kwargs):
+            return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
+
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar
         self.text = text
@@ -140,7 +146,7 @@ class Backend:
                 stderr=subprocess.PIPE,
             ),
         )
-        while not running.poll():
+        while True:
             out = open("/tmp/install.log").readlines()
             print(len(out) / len(self._expected_debootstrap_output) * 100)
             print(len(out) / len(self._expected_debootstrap_output) * 10)
@@ -196,7 +202,7 @@ class Backend:
                 stderr=subprocess.PIPE,
             ),
         )
-        while not postchroot.poll():
+        while True:
             line = postchroot.stderr.readline().decode("UTF-8").strip()
             if line:
                 open("/tmp/marsoo", "a").write(f"{line}\n")
@@ -219,6 +225,8 @@ class Backend:
                     pass
 
                 self.bar.setProperty("value", 10 + perc)
+            elif data["status"] == "finished":
+                break
             else:
                 perc = round(data["percent"]) + 20
                 if perc >= 50 and (perc - 20) <= 50:
@@ -230,5 +238,20 @@ class Backend:
                     perc = 100
 
                 self.bar.setProperty("value", perc)
+        
+        os.system("sudo umount -Rfl /target")
+        self.rebootimer.timeout.connect(lambda: self.reboo)
+        self.rebootimer.setProperty("repeat", False)
+        self.rebootimer.start(10000)
+        self.widget.subProgressText.hide()
+        self.widget.title.setText("Riavvio in corso...")
+        self.widget.nextbutton.setText("Riavvia ora ›")
+        bar.setFormat("")
+        remaining = 10000
+        while remaining != 0:
+            remaining = self.rebootimer.remainingTime()
+            percent = (int(str(remaining - 10000).replace("-", "")) / 10000) * 100
+            self.widget.subtitle.setText(f"Il computer verrà riavviato tra {round(remaining / 1000)} secondi.")
+            bar.setProperty("value", percent)
 
         print("HO ROTTO IL SISTEMA")

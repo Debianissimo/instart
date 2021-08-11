@@ -47,7 +47,8 @@ class MyWidget(QtWidgets.QWidget):
             "Buonasera!",
             "OUI!",
         ]
-        self.backend = Backend(loop)
+        self.rebootimer = QtCore.QTimer()
+        self.backend = Backend(self)
         self.mainlayout = QtWidgets.QVBoxLayout(self)
         self.qlayout = QtWidgets.QGridLayout()
         self._ready = False
@@ -57,8 +58,8 @@ class MyWidget(QtWidgets.QWidget):
         font.setPointSize(14)
         self.nextbutton.setGeometry(QtCore.QRect(1040, 1010, 88, 34))
         self.backbutton.setGeometry(QtCore.QRect(1040, 1010, 88, 34))  # noicre
-        self.policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.policy.setHorizontalStretch(0)
+        self.policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        #self.policy.setHorizontalStretch(0)
         self.policy.setVerticalStretch(0)
         self.policy.setHeightForWidth(self.nextbutton.sizePolicy().hasHeightForWidth())
         self.nextbutton.setSizePolicy(self.policy)
@@ -120,7 +121,7 @@ class MyWidget(QtWidgets.QWidget):
         )
         self.text.setFont(font)
 
-        self.buttonslayout.addWidget(self.nextbutton, alignment=QtCore.Qt.AlignRight)
+        self.buttonslayout.addWidget(self.nextbutton)#, alignment=QtCore.Qt.AlignRight)
         self.mainlayout.addLayout(self.qlayout)
         self.mainlayout.addLayout(self.buttonslayout)
         self.fullnameEdit.textChanged.connect(self.updateUsername)
@@ -204,9 +205,9 @@ class MyWidget(QtWidgets.QWidget):
         )
         self.qlayout.addItem(self.spacer)
 
-        self.buttonslayout.addWidget(self.backbutton, alignment=QtCore.Qt.AlignLeft)
+        self.buttonslayout.addWidget(self.backbutton)#, alignment=QtCore.Qt.AlignLeft)
         self.backbutton.show()
-        self.buttonslayout.addWidget(self.nextbutton, alignment=QtCore.Qt.AlignRight)
+        self.buttonslayout.addWidget(self.nextbutton)#, alignment=QtCore.Qt.AlignRight)
         self.nextbutton.show()
 
     async def moveToLanguages(self):
@@ -286,9 +287,9 @@ class MyWidget(QtWidgets.QWidget):
         self.qlayout.addWidget(self.subtitle)
         self.subtitle.show()
         self.qlayout.addItem(self.spacer)
-        self.buttonslayout.addWidget(self.backbutton, alignment=QtCore.Qt.AlignLeft)
+        self.buttonslayout.addWidget(self.backbutton)#, alignment=QtCore.Qt.AlignLeft)
         self.backbutton.show()
-        self.buttonslayout.addWidget(self.nextbutton, alignment=QtCore.Qt.AlignRight)
+        self.buttonslayout.addWidget(self.nextbutton)#, alignment=QtCore.Qt.AlignRight)
         self.nextbutton.show()
 
     @asyncSlot()
@@ -309,6 +310,7 @@ class MyWidget(QtWidgets.QWidget):
             "ATTENZIONE: Non puoi creare una partizione specifica per Debianissimo. "
             "Puoi solo usare un intero disco. Motivo? Chiedi ad Ordissimo! Nemmeno noi Developerissimi lo sappiamo. "  # se usavamo la mia frase andava fuori dallo schermo #esatto
             "Pertanto, il dualboot non è supportato.\n"
+            "Dato che è Ordissimo, basta un singolo click sull'opzione per sceglierla!"
             # f"Io chicchi voglio sapere il json, ecco perchè a tradimento metto sta cosa {self.disks} ma lol"
         )
         self.listWidget.clear()

@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import subprocess
+import random
 from hurry.filesize import size, alternative
 
 os.environ["DEBIAN_FRONTEND"] = "noninteractive"
@@ -19,11 +20,51 @@ stdout = sys.stdout
 # sys.stdout = marso
 # sys.stderr = marso
 
-
 def sendjson(**kwargs):
     print(json.dumps(kwargs), file=sys.stderr)
 
+'''
+# per quando ho bisogno di testàre roba
+import time
+for i in range(11):
+    sendjson(
+            text="Download in corso dei pacchetti. mona/marso scaricati. Mancano mona. {pkg}".format(
+                pkg="marso{}".format(i)
+            ),
+            total_bytes=6969696969,
+            current_bytes=random.randint(0, 6969696969),
+            status="download",
+            pkg="marso{}".format(i),
+        )
+    sendjson(
+            text="Download in corso dei pacchetti. mona/marso scaricati. Mancano mona. {pkg}".format(
+                pkg="marso{}".format(i)
+            ),
+            total_bytes=6969696969,
+            current_bytes=random.randint(0, 6969696969),
+            status="download",
+            pkg="marso{}".format(i),
+        )
+    time.sleep(0.01)
 
+for i in range(10, 101):
+    sendjson(
+            text="Installazione dei pacchetti. {perc}% installato.".format(perc=i),
+            pkg="marso{}".format(i),
+            percent=i,
+            status="Marsificazione...",
+        )
+    sendjson(
+            text="Installazione dei pacchetti. {perc}% installato.".format(perc=i),
+            pkg="marso{}".format(i),
+            percent=i,
+            status="Marsificazione...",
+        )
+    time.sleep(0.01)
+'''
+
+
+# '''
 subprocess.run(
     "apt update; apt install -y python3-apt wget gnupg python3-pip python-pip-whl=9.0.1-2+deb9u1 python3-setuptools",
     shell=True,
@@ -123,4 +164,5 @@ fprog = FProgress()
 cache.commit(install_progress=prog, fetch_progress=fprog)
 
 subprocess.run("lilo", shell=True)
-sendjson(status="finished")
+# '''
+sendjson(status="finished", text="Installazione terminata.")
