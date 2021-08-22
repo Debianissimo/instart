@@ -318,6 +318,9 @@ class MyWidget(QtWidgets.QWidget):
         for i, prop in enumerate(self.disks.items()):
             QtWidgets.QListWidgetItem(self.listWidget)
             nome, grandezza = prop
+
+            grandezzaFixed = size(grandezza, alternative_size_system)
+
             # if nome in ["result", "errors"] and grandezza in ["done", []]:
             #    # in qualche modo si sono swappate le richieste del setup utenti e del partizionamento, si riprova
             #    self.disks = json.loads(await self.backend.send("disks"))
@@ -326,16 +329,30 @@ class MyWidget(QtWidgets.QWidget):
             # if not type(grandezza) == "int":
             #    continue # mi dicono che il check forse funziona ma tutti dischi apprentemente sono string, ok mo sono confuso
 
-            if (
-                grandezza < 64000000000
-            ):  # ho messo un int() EH # DI NUOVO AAAAAA MA SCIOPA, proviamo senza int, non ho salvato ops vedem se converto a string e poi integrer # non credo manco io
-                # ah mo ho capito, gradetta = 'done'  NO NON DI NUOVO
-                # scusi posso chiedere l'utilita di sto if? che dice se grandezza minore di 64 GB continua se no ignora lo statament
-                # è comploicato da spiegare
-                continue
+            #if (
+            #    grandezza < 64000000000
+            #):  # ho messo un int() EH # DI NUOVO AAAAAA MA SCIOPA, proviamo senza int, non ho salvato ops vedem se converto a string e poi integrer # non credo manco io
+            #    # ah mo ho capito, gradetta = 'done'  NO NON DI NUOVO
+            #    # scusi posso chiedere l'utilita di sto if? che dice se grandezza minore di 64 GB continua se no ignora lo statament
+            #    # è comploicato da spiegare
+            #    continue
 
-            grandezza = size(grandezza, alternative_size_system)
-            self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
+            if not (int(str(grandezzaFixed).replace("GB", "")) >= '64'):
+                print(f"{i} è grande {grandezzaFixed}, quindi è stato disabilitato")
+                listItem = self.listWidget.item(i)
+                listItem.setText(f"{nome} - Disco {i} da {grandezza} | Disabilitato per: Troppo piccolo")
+                print(listItem.flags())
+                #listItem.setFlags({ "ItemIsSelectable": 0 }) # Questo e il metodo, ma quelli di QT nelle documentazioni non sono molto chiari su come vada usata questa funzione
+                print(listItem.flags())
+            else:
+                print(f"{i} è grande {grandezzaFixed}, quindi è abilitato")
+                self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
+
+            grandezza = size(grandezza, alternative_size_system) # non lo commento perche non so se serve dopo nel codice
+
+
+            #self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
+
             # if nome == "sda":
             #    self.listWidget.item(i).setHidden(True)
 
