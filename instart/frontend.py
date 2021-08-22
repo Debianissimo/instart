@@ -337,7 +337,7 @@ class MyWidget(QtWidgets.QWidget):
             #    # è comploicato da spiegare
             #    continue
 
-            if not (int(str(grandezzaFixed).replace("GB", "")) >= '64'):
+            if not (int(str(grandezzaFixed).replace("GB", "")) >= 64):
                 print(f"{i} è grande {grandezzaFixed}, quindi è stato disabilitato")
                 listItem = self.listWidget.item(i)
                 listItem.setText(f"{nome} - Disco {i} da {grandezza} | Disabilitato per: Troppo piccolo")
