@@ -6,6 +6,7 @@ from .partitioning import partition
 from PySide2.QtWidgets import QProgressBar, QLabel, QWidget
 from PySide2.QtCore import QTimer
 
+
 class PartitionError(Exception):
     pass
 
@@ -15,6 +16,7 @@ class Backend:
 
     def __init__(self, widget: QWidget):
         from .frontend import MyWidget
+
         self.bar: QProgressBar = None
         self.text: QLabel = None
         self.widget: MyWidget = widget
@@ -115,7 +117,7 @@ class Backend:
         self.bar.setProperty("value", progress)
 
     def reboo(*args, **kwargs):
-            return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
+        return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
 
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar
@@ -238,7 +240,7 @@ class Backend:
                     perc = 100
 
                 self.bar.setProperty("value", perc)
-        
+
         os.system("sudo umount -Rfl /target")
         self.rebootimer.timeout.connect(lambda: self.reboo)
         self.rebootimer.setProperty("repeat", False)
@@ -251,7 +253,9 @@ class Backend:
         while remaining != 0:
             remaining = self.rebootimer.remainingTime()
             percent = (int(str(remaining - 10000).replace("-", "")) / 10000) * 100
-            self.widget.subtitle.setText(f"Il computer verrà riavviato tra {round(remaining / 1000)} secondi.")
+            self.widget.subtitle.setText(
+                f"Il computer verrà riavviato tra {round(remaining / 1000)} secondi."
+            )
             bar.setProperty("value", percent)
 
         print("HO ROTTO IL SISTEMA")

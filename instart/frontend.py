@@ -59,7 +59,7 @@ class MyWidget(QtWidgets.QWidget):
         self.nextbutton.setGeometry(QtCore.QRect(1040, 1010, 88, 34))
         self.backbutton.setGeometry(QtCore.QRect(1040, 1010, 88, 34))  # noicre
         self.policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        #self.policy.setHorizontalStretch(0)
+        # self.policy.setHorizontalStretch(0)
         self.policy.setVerticalStretch(0)
         self.policy.setHeightForWidth(self.nextbutton.sizePolicy().hasHeightForWidth())
         self.nextbutton.setSizePolicy(self.policy)
@@ -121,7 +121,9 @@ class MyWidget(QtWidgets.QWidget):
         )
         self.text.setFont(font)
 
-        self.buttonslayout.addWidget(self.nextbutton)#, alignment=QtCore.Qt.AlignRight)
+        self.buttonslayout.addWidget(
+            self.nextbutton
+        )  # , alignment=QtCore.Qt.AlignRight)
         self.mainlayout.addLayout(self.qlayout)
         self.mainlayout.addLayout(self.buttonslayout)
         self.fullnameEdit.textChanged.connect(self.updateUsername)
@@ -205,9 +207,13 @@ class MyWidget(QtWidgets.QWidget):
         )
         self.qlayout.addItem(self.spacer)
 
-        self.buttonslayout.addWidget(self.backbutton)#, alignment=QtCore.Qt.AlignLeft)
+        self.buttonslayout.addWidget(
+            self.backbutton
+        )  # , alignment=QtCore.Qt.AlignLeft)
         self.backbutton.show()
-        self.buttonslayout.addWidget(self.nextbutton)#, alignment=QtCore.Qt.AlignRight)
+        self.buttonslayout.addWidget(
+            self.nextbutton
+        )  # , alignment=QtCore.Qt.AlignRight)
         self.nextbutton.show()
 
     async def moveToLanguages(self):
@@ -284,9 +290,13 @@ class MyWidget(QtWidgets.QWidget):
         self.qlayout.addWidget(self.subtitle)
         self.subtitle.show()
         self.qlayout.addItem(self.spacer)
-        self.buttonslayout.addWidget(self.backbutton)#, alignment=QtCore.Qt.AlignLeft)
+        self.buttonslayout.addWidget(
+            self.backbutton
+        )  # , alignment=QtCore.Qt.AlignLeft)
         self.backbutton.show()
-        self.buttonslayout.addWidget(self.nextbutton)#, alignment=QtCore.Qt.AlignRight)
+        self.buttonslayout.addWidget(
+            self.nextbutton
+        )  # , alignment=QtCore.Qt.AlignRight)
         self.nextbutton.show()
 
     @asyncSlot()
@@ -294,7 +304,7 @@ class MyWidget(QtWidgets.QWidget):
         keys = list(self.disks.keys())
         self.backend.disk = f"/dev/{keys[wat.index]}"
 
-        if (self.disks[keys[wat.index]] >= (1024 ** 3) * 64):
+        if self.disks[keys[wat.index]] >= (1024 ** 3) * 64:
             await self.confirmDiskChoice()
         else:
             return
@@ -336,30 +346,25 @@ class MyWidget(QtWidgets.QWidget):
             # if not type(grandezza) == "int":
             #    continue # mi dicono che il check forse funziona ma tutti dischi apprentemente sono string, ok mo sono confuso
 
-            #if (
+            # if (
             #    grandezza < 64000000000
-            #):  # ho messo un int() EH # DI NUOVO AAAAAA MA SCIOPA, proviamo senza int, non ho salvato ops vedem se converto a string e poi integrer # non credo manco io
+            # ):  # ho messo un int() EH # DI NUOVO AAAAAA MA SCIOPA, proviamo senza int, non ho salvato ops vedem se converto a string e poi integrer # non credo manco io
             #    # ah mo ho capito, gradetta = 'done'  NO NON DI NUOVO
             #    # scusi posso chiedere l'utilita di sto if? che dice se grandezza minore di 64 GB continua se no ignora lo statament
             #    # è comploicato da spiegare
             #    continue
 
-
-            if (grandezza >= (1024 ** 3) * 64):
+            listItem = self.listWidget.item(i)
+            listItem.setText(f"{nome} - Disco {i} da {grandezzaFixed}.")
+            listItem.index = i
+            if grandezza < 64000000000:
                 listItem = self.listWidget.item(i)
-                listItem.setText(f"{nome} - Disco {i} da {grandezzaFixed}")
-                listItem.index = i
-            else:
-                listItem = self.listWidget.item(i)
-                listItem.setText(f"{nome} - Disco {i} da {grandezzaFixed} | Disabilitato per: Troppo piccolo")
+                listItem.setText(
+                    f"{nome} - Disco {i} da {grandezzaFixed}. Non può essere usato perchè è troppo piccolo."
+                )
                 listItem.setFlags(QtCore.Qt.ItemFlags(0x1))
-                listItem.index = i
 
-
-            grandezza = size(grandezza, alternative_size_system) # non lo commento perche non so se serve dopo nel codice
-
-
-            #self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
+            # self.listWidget.item(i).setText(f"{nome} - Disco {i} da {grandezza}")
 
             # if nome == "sda":
             #    self.listWidget.item(i).setHidden(True)
