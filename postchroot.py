@@ -20,10 +20,12 @@ stdout = sys.stdout
 # sys.stdout = marso
 # sys.stderr = marso
 
+
 def sendjson(**kwargs):
     print(json.dumps(kwargs), file=sys.stderr)
 
-'''
+
+"""
 # per quando ho bisogno di testàre roba
 import time
 for i in range(11):
@@ -61,7 +63,7 @@ for i in range(10, 101):
             status="Marsificazione...",
         )
     time.sleep(0.01)
-'''
+"""
 
 
 # '''
