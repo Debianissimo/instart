@@ -165,7 +165,7 @@ class Backend:
             self.bar.setProperty("value", percent)
             if (
                 percent >= 10.025316455696203
-                and line
+                or line
                 == self._expected_debootstrap_output[-1].replace("I:", "", 1).strip()
             ):  # cifra completa: 10.025316455696203
                 break
