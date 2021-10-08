@@ -170,27 +170,29 @@ class Backend:
             ):  # cifra completa: 10.025316455696203
                 break
 
+        code = 0
         # for code in [
         if not os.path.ismount("/target/proc"):
-            await self.loop.run_in_executor(
+            code += await self.loop.run_in_executor(
                 None,
                 lambda: os.system(f"sudo mount -t proc /proc /target/proc"),
             )
+
         if not os.path.ismount("/target/dev"):
-            await self.loop.run_in_executor(
+            code += await self.loop.run_in_executor(
                 None,
                 lambda: os.system(f"sudo mount --rbind /dev /target/dev"),
             ),
 
         if not os.path.ismount("/target/sys"):
-            await self.loop.run_in_executor(
+            code += await self.loop.run_in_executor(
                 None,
                 lambda: os.system(f"sudo mount --rbind /sys /target/sys"),
             ),
         # ]:
-        #    if code != 0:
-        #        self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
-        #        return
+        if code != 0:
+                self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
+                return
         # '''
         insttexxt = "Sto installando i pacchetti Ordissimo"
         self.text.setText(insttexxt + ".")
