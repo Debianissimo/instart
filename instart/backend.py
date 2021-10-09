@@ -167,7 +167,7 @@ class Backend:
                 #percent >= 10.025316455696203
                 #or line
                 #== self._expected_debootstrap_output[-1].replace("I:", "", 1).strip()
-                running.returncode
+                isinstance(running.returncode, int)
             ):  # cifra completa: 10.025316455696203
                 if running.returncode != 0:
                     self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
