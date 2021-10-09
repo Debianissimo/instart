@@ -174,7 +174,7 @@ class Backend:
                     self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
                     return
                 break
-
+        print("mona")
         code = 0
         # for code in [
         if not os.path.ismount("/target/proc"):
