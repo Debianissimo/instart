@@ -164,6 +164,7 @@ class Backend:
             # self.setProgress(sera, marso)
             self.bar.setProperty("value", percent)
             print(running.returncode)
+            print("poll(o)", running.poll()
             if (
                 #percent >= 10.025316455696203
                 #or line
