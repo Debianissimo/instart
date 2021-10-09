@@ -191,7 +191,7 @@ class Backend:
             ),
         # ]:
         if code != 0:
-            for a in range(10);
+            for a in range(10):
                 self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
             return
         # '''
