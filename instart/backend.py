@@ -164,10 +164,14 @@ class Backend:
             # self.setProgress(sera, marso)
             self.bar.setProperty("value", percent)
             if (
-                percent >= 10.025316455696203
-                or line
-                == self._expected_debootstrap_output[-1].replace("I:", "", 1).strip()
+                #percent >= 10.025316455696203
+                #or line
+                #== self._expected_debootstrap_output[-1].replace("I:", "", 1).strip()
+                running.returncode
             ):  # cifra completa: 10.025316455696203
+                if running.returncode != 0:
+                    self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
+                    return
                 break
 
         code = 0
