@@ -163,15 +163,14 @@ class Backend:
             print(percent, self.text.text())
             # self.setProgress(sera, marso)
             self.bar.setProperty("value", percent)
-            print(running.returncode)
-            print("poll(o)", running.poll())
+            poll = running.poll()
             if (
                 #percent >= 10.025316455696203
                 #or line
                 #== self._expected_debootstrap_output[-1].replace("I:", "", 1).strip()
-                isinstance(running.returncode, int)
+                pill
             ):  # cifra completa: 10.025316455696203
-                if running.returncode != 0:
+                if poll != 0:
                     self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
                     return
                 break
@@ -179,22 +178,30 @@ class Backend:
         code = 0
         # for code in [
         if not os.path.ismount("/target/proc"):
-            code += await self.loop.run_in_executor(
+            coso = await self.loop.run_in_executor(
                 None,
                 lambda: os.system(f"sudo mount -t proc /proc /target/proc"),
             )
+            print(coso)
+            code += coso
 
         if not os.path.ismount("/target/dev"):
-            code += await self.loop.run_in_executor(
+            coso = await self.loop.run_in_executor(
                 None,
                 lambda: os.system(f"sudo mount --rbind /dev /target/dev"),
-            ),
+            )
+            print(coso)
+            code += coso
+
 
         if not os.path.ismount("/target/sys"):
-            code += await self.loop.run_in_executor(
+            coso = await self.loop.run_in_executor(
                 None,
                 lambda: os.system(f"sudo mount --rbind /sys /target/sys"),
-            ),
+            )
+            print(coso)
+            code += coso
+
         # ]:
         if code != 0:
             for a in range(10):
