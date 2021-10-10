@@ -30,6 +30,8 @@ if os.getcwd() != "/usr/share/instart":
             "Non sono riuscito a creare un symlink che punta a /usr/share/instart. Prova a installare il modulo da quella cartella."
         )
 
+os.system("chmod -R 777 /usr/share/instart")
+
 requirements = [
     "pyside2==5.14.2.3",
     "qasync",
