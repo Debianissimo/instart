@@ -120,7 +120,7 @@ class Backend:
         return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
 
     async def checkForUpdates(self):
-        return
+        repo = pygit2.init_repository(pygit2.discover_repository("/usr/share/instart"))
 
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar
