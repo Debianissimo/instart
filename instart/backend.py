@@ -135,6 +135,9 @@ class Backend:
             if line.startswith("#") or not line:
                 continue
 
+            if line.endswith("/"):
+                line = "*/" + line
+
             line = line.replace("*", ".*([a-zA-Z]+)")
 
             comp = re.compile(line)
