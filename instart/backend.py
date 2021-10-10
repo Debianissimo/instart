@@ -141,7 +141,7 @@ class Backend:
 
         deps = await self.loop.run_in_executor(None, partial(
             subprocess.Popen,
-                "sudo pip install -Ue .",
+                "sudo pip3.7 install -Ue .",
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
