@@ -4,11 +4,11 @@ import os
 import subprocess
 import pygit2
 import aiofiles
-import re
+
 from functools import partial
 from PySide2.QtWidgets import QProgressBar, QLabel, QWidget
 from PySide2.QtCore import QTimer
-
+from aiohttp import ClientSession
 
 class PartitionError(Exception):
     pass
@@ -155,11 +155,13 @@ class Backend:
     async def checkForUpdates(self):
         coso = await self.loop.run_in_executor(None, partial(pygit2.discover_repository, "/usr/share/instart"))
         repo = await self.loop.run_in_executor(None, partial(pygit2.init_repository, coso))
-        stat: dict = await self.loop.run_in_executor(None, partial(repo.status))
-        upstream = await self.loop.run_in_executor(None, partial(repo.revparse_single, "origin/HEAD"))
-        local = await self.loop.run_in_executor(None, partial(repo.revparse_single, "HEAD"))
-        _, has_to_update = await self.loop.run_in_executor(None, partial(repo.ahead_behind, local.id, upstream.id))
-        return bool(has_to_update)
+        id_ = (await self.loop.run_in_executor(None, partial(repo.revparse_single, "HEAD"))).id
+
+        async with ClientSession(loop=self.loop) as session:
+            async with session.post("http://srv1.jxsterg1.space:8045/check_for_updates", json={"id": str(id_)}) as resp:
+                has_to_update = await resp.json()
+                return has_to_update["has_to_update"]
+
 
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar

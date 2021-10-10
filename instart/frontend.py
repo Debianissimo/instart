@@ -12,11 +12,11 @@
 # idk
 import asyncio
 import traceback
-import aiohttp
 import signal
 import random
-
 import qasync
+
+from aiohttp import ClientSession
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QSizePolicy
 from qasync import asyncSlot
@@ -561,7 +561,7 @@ async def main():
     loop = asyncio.get_event_loop()
     future = loop.create_future()
 
-    async with aiohttp.ClientSession(loop=loop) as session:
+    async with ClientSession(loop=loop) as session:
         try:
             async with session.get("https://google.com"):
                 pass
