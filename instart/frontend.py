@@ -26,9 +26,11 @@ from .backend import Backend
 
 
 class MyWidget(QtWidgets.QWidget):
-    def __init__(self, loop):
+    def __init__(self, loop, app, future):
         super().__init__()
         self.resize(512, 512)
+        self.future = future
+        self.app = app
         self.connected = False
         self.loop = loop
         self.loading_anim = QtWidgets.QLabel()
@@ -75,6 +77,7 @@ class MyWidget(QtWidgets.QWidget):
         self.qlayout.addWidget(self.text)
 
         self.nextbutton.clicked.connect(self.nextStep)
+        self.started = False
         self.backbutton.clicked.connect(self.prevStep)
 
         self.title = QtWidgets.QLabel(alignment=QtCore.Qt.AlignLeft)
@@ -139,7 +142,10 @@ class MyWidget(QtWidgets.QWidget):
         self.subProgressText = QtWidgets.QLabel()
         self.subProgressText.setFont(font)
         self.subProgressText.setWordWrap(True)
+        self.textBelowLoading = QtWidgets.QLabel(alignment=QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.textBelowLoading.setStyleSheet("font-size: 20px")
         self.progressBar.setFormat("Progresso: %p%")
+        self.isloading = False
 
     def enableNextButtonOnUsernameOrPassword(self, _):
         self.nextbutton.setEnabled(
@@ -392,7 +398,11 @@ class MyWidget(QtWidgets.QWidget):
         # /midissocio
         # ora .zsh
 
-    def startLoading(self):
+    def startLoading(self, text=""):
+        if self.isloading:
+            self.textBelowLoading.setText(text)
+            return
+
         wgts = [
             self.title,
             self.subtitle,
@@ -415,21 +425,83 @@ class MyWidget(QtWidgets.QWidget):
         for itm in itms:
             self.qlayout.removeItem(itm)
 
-        self.mainlayout.addWidget(self.loading_anim, alignment=QtCore.Qt.AlignCenter)
+        align = QtCore.Qt.AlignHCenter|QtCore.Qt.AlignBottom
+
+        self.mainlayout.addWidget(self.loading_anim, alignment=align)
+        self.mainlayout.addWidget(self.textBelowLoading)
+        self.textBelowLoading.setText(text)
+        self.textBelowLoading.show()
         self.loading_anim.show()
         self.loading.start()
 
+        self.isloading = True
+
     def stopLoading(self):
+        if not self.isloading:
+            return
+
         self.loading.stop()
         self.mainlayout.removeWidget(self.loading_anim)
+        self.mainlayout.removeWidget(self.textBelowLoading)
+        self.textBelowLoading.hide()
         self.loading_anim.hide()
+        
+        self.isloading = False
+
+    @asyncSlot()
+    async def closeApp(self):
+        try:
+            self.loop.call_later(10, self.future.cancel)
+            self.future.cancel()
+        # try:
+        #    for task in asyncio.all_tasks(loop):
+        #        task.cancel()
+        # except asyncio.CancelledError:
+        #   pass
+            self.app.quit()
+            self.loop.stop()
+        except asyncio.CancelledError:
+            return
 
     @asyncSlot()
     async def nextStep(self):  # ora lo cambio in modo che vada sul coso
         # self.text.setText(random.choice(self.hello))
         # self.text.setText("muso marso devi aspettare la risposta..")
         self.startLoading()
-        print(await self.backend.checkForUpdates())
+        if not self.started:
+            self.started = True
+            self.startLoading("Sto controllando se ci sono aggiornamenti...")
+            hasUpdates = await self.backend.checkForUpdates()
+            if hasUpdates:
+                errors = False
+                self.startLoading("Sto eseguendo gli aggiornamenti...")
+                try:
+                    await self.backend.update()
+                except ChildProcessError:
+                    errors = True
+
+                self.stopLoading()
+                self.text.setText(
+                    "Aggiornamento completato!\n"
+                    "Ora, chiudi l'installer (NON il sistema!) cliccando\n"
+                    "il pulsante qui sotto, dopodichè avvia di nuovo l'app."
+                )
+                if errors:
+                    self.text.setText(
+                        "C'è stato un problema aggiornando.\n"
+                        "Per favore, segnala questo problema agli sviluppatori.\n"
+                        "Al momento non potrai installare Debianissimo."
+                    )
+                self.nextbutton.setText("Chiudi")
+                self.nextbutton.clicked.connect(self.closeApp)
+                self.buttonslayout.addWidget(self.nextbutton)
+                self.qlayout.addWidget(self.text)
+                self.text.show()
+                self.nextbutton.show()
+                return
+
+        self.startLoading()
+
         self.backbutton.setText("‹ Indietro")
         self.nextbutton.setText("Avanti ›")
         if self.stepsDone == -2:
@@ -499,7 +571,7 @@ async def main():
             _connection_error = e
 
     app = QtWidgets.QApplication.instance()
-    mainWindow = MyWidget(loop)
+    mainWindow = MyWidget(loop, app, future)
     mainWindow.show()
 
     mainWindow.connected = _connection_error is None

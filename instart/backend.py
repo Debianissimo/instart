@@ -122,6 +122,24 @@ class Backend:
     def reboo(*args, **kwargs):
         return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
 
+    async def update(self):
+        update = await self.loop.run_in_executor(None, partial(
+            subprocess.Popen,
+                "sudo git pull",
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            
+        ))
+        poll = update.poll()
+        while poll == None:
+            await asyncio.sleep(0)
+            poll = update.poll()
+        else:
+            if poll != 0:
+                raise ChildProcessError(f"Il tentativo di aggiornamento ha dato codice {poll}.")
+
+ 
     async def checkForUpdates(self):
         coso = await self.loop.run_in_executor(None, partial(pygit2.discover_repository, "/usr/share/instart"))
         repo = await self.loop.run_in_executor(None, partial(pygit2.init_repository, coso))
