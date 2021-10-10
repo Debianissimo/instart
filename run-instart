@@ -1,3 +1,4 @@
 #!/bin/bash
 # fatto per essere avviato dal file .desktop
+cd /usr/share/instart # cambio la cartella così instart non si confonde
 instart &> /tmp/instart.log

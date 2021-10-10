@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Debianisismo installer
 GenericName=Installa<br><b>Debianissimo</b>!
+Comment=Installer per Debianissimo.
 Exec=/usr/share/instart/run-instart
 Icon=instart
 Type=Application

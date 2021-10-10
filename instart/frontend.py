@@ -163,7 +163,7 @@ class MyWidget(QtWidgets.QWidget):
         self.backend.user_fullname = fullname
         self.backend.username = username
         self.backend.password = password.decode()  # mo va...
-        self.onlyStopLoading()
+        self.stopLoading()
         self.nextbutton.clicked.disconnect()
         self.nextbutton.clicked.connect(self.nextStep)
         await self.nextStep()
@@ -231,7 +231,7 @@ class MyWidget(QtWidgets.QWidget):
             QtWidgets.QListWidgetItem(self.listWidget)
             self.listWidget.item(i).setText(lingua)
 
-        self.onlyStopLoading()
+        self.stopLoading()
         # questo è movetolanguages non movetopartitions
         # sono un mona seriale
         self.qlayout.addWidget(self.title)
@@ -256,7 +256,7 @@ class MyWidget(QtWidgets.QWidget):
             "Potrebbe volerci un po' visto che sto installando anche i pacchetti "
             "che puoi trovare nello store."
         )
-        self.onlyStopLoading()
+        self.stopLoading()
         self.qlayout.addWidget(self.title)
         self.title.show()
         self.qlayout.addWidget(self.subtitle)
@@ -271,7 +271,7 @@ class MyWidget(QtWidgets.QWidget):
     @asyncSlot()
     async def confirmDiskChoice(self):
         self.startLoading()
-        self.onlyStopLoading()
+        self.stopLoading()
         self.nextbutton.clicked.disconnect()
         self.nextbutton.clicked.connect(self.setDisk)
         self.backbutton.clicked.disconnect()
@@ -369,7 +369,7 @@ class MyWidget(QtWidgets.QWidget):
             # if nome == "sda":
             #    self.listWidget.item(i).setHidden(True)
 
-        self.onlyStopLoading()
+        self.stopLoading()
         self.qlayout.addWidget(self.title)
         self.title.show()
         self.qlayout.addWidget(self.subtitle)
@@ -390,6 +390,7 @@ class MyWidget(QtWidgets.QWidget):
         # lol
         # che si fa?
         # /midissocio
+        # ora .zsh
 
     def startLoading(self):
         wgts = [
@@ -418,7 +419,7 @@ class MyWidget(QtWidgets.QWidget):
         self.loading_anim.show()
         self.loading.start()
 
-    def onlyStopLoading(self):
+    def stopLoading(self):
         self.loading.stop()
         self.mainlayout.removeWidget(self.loading_anim)
         self.loading_anim.hide()
@@ -451,7 +452,7 @@ class MyWidget(QtWidgets.QWidget):
                 )
                 self.connected = True
 
-        self.onlyStopLoading()
+        self.stopLoading()
 
         self.stepsDone += 1
         if self.stepsDone == -1:
@@ -471,7 +472,7 @@ class MyWidget(QtWidgets.QWidget):
         self.backbutton.setText("‹ Indietro")
         self.nextbutton.setText("Avanti ›")
         self.startLoading()
-        self.onlyStopLoading()
+        self.stopLoading()
 
         self.stepsDone -= 1
         if self.stepsDone == -1:

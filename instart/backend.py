@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 import subprocess
-from .partitioning import partition
+import pygit2
 from PySide2.QtWidgets import QProgressBar, QLabel, QWidget
 from PySide2.QtCore import QTimer
 
@@ -118,6 +118,9 @@ class Backend:
 
     def reboo(*args, **kwargs):
         return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
+
+    async def checkForUpdates(self):
+        return
 
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar
