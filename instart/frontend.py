@@ -34,7 +34,7 @@ class MyWidget(QtWidgets.QWidget):
         self.connected = False
         self.loop = loop
         self.loading_anim = QtWidgets.QLabel()
-        self.loading = QtGui.QMovie("/home/ordissimo/instart/assets/placeholder.gif")
+        self.loading = QtGui.QMovie("/usr/share/instart/assets/placeholder.gif")
         self.loading.setSpeed(500)
         self.loading_anim.setMovie(self.loading)
 
