@@ -470,11 +470,11 @@ class MyWidget(QtWidgets.QWidget):
         self.startLoading()
         if not self.started:
             self.started = True
-            self.startLoading("Sto controllando se ci sono aggiornamenti...")
+            self.startLoading("Sto controllando se ci sono aggiornamenti per l'installer...")
             hasUpdates = await self.backend.checkForUpdates()
             if hasUpdates:
                 errors = False
-                self.startLoading("Sto eseguendo gli aggiornamenti...")
+                self.startLoading("Sto eseguendo gli aggiornamenti per l'installer...")
                 try:
                     await self.backend.update()
                 except ChildProcessError:
@@ -482,13 +482,13 @@ class MyWidget(QtWidgets.QWidget):
 
                 self.stopLoading()
                 self.text.setText(
-                    "Aggiornamento completato!\n"
+                    "Aggiornamento dell'installer completato!\n"
                     "Ora, chiudi l'installer (NON il sistema!) cliccando\n"
                     "il pulsante qui sotto, dopodichè avvia di nuovo l'app."
                 )
                 if errors:
                     self.text.setText(
-                        "C'è stato un problema aggiornando.\n"
+                        "C'è stato un problema aggiornando l'installer.\n"
                         "Per favore, segnala questo problema agli sviluppatori.\n"
                         "Al momento non potrai installare Debianissimo."
                     )
