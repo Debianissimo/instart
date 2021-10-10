@@ -429,6 +429,7 @@ class MyWidget(QtWidgets.QWidget):
         # self.text.setText(random.choice(self.hello))
         # self.text.setText("muso marso devi aspettare la risposta..")
         self.startLoading()
+        print(await self.backend.checkForUpdates())
         self.backbutton.setText("‹ Indietro")
         self.nextbutton.setText("Avanti ›")
         if self.stepsDone == -2:

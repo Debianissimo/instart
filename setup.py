@@ -36,7 +36,8 @@ requirements = [
     "hurry.filesize",
     "pyparted",
     "aiohttp",
-    "pygit2"
+    "pygit2",
+    "aiofiles"
 ]
 
 setup(

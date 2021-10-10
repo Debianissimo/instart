@@ -3,6 +3,9 @@ import json
 import os
 import subprocess
 import pygit2
+import aiofiles
+import re
+from functools import partial
 from PySide2.QtWidgets import QProgressBar, QLabel, QWidget
 from PySide2.QtCore import QTimer
 
@@ -120,7 +123,34 @@ class Backend:
         return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
 
     async def checkForUpdates(self):
-        repo = pygit2.init_repository(pygit2.discover_repository("/usr/share/instart"))
+        coso = await self.loop.run_in_executor(None, partial(pygit2.discover_repository, "/usr/share/instart"))
+        repo = await self.loop.run_in_executor(None, partial(pygit2.init_repository, coso))
+        stat: dict = await self.loop.run_in_executor(None, partial(repo.status))
+        gitignore = await (await aiofiles.open("/usr/share/instart/.gitignore")).readlines()
+        toremove = set()
+
+        for line in gitignore:
+            await asyncio.sleep(0)
+            line = line.strip(" \n")
+            if line.startswith("#") or not line:
+                continue
+
+            line = line.replace("*", ".*([a-zA-Z]+)")
+
+            comp = re.compile(line)
+            new = list(filter(comp.match, stat))
+            for to_add_in_toremove in new:
+                await asyncio.sleep(0)
+
+                toremove.add(to_add_in_toremove)
+            
+        for tr in toremove:
+            stat.pop(tr)
+        
+        print(stat)
+
+
+        return bool(stat)
 
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar
@@ -141,7 +171,7 @@ class Backend:
         self.setProgress(0, "Installazione del sistema base Debian.")
         out = []
         print("a")
-        open("/tmp/install.log", "w").write("\n")
+        await (await aiofiles.open("/tmp/install.log", "w")).write("\n")
         running = await self.loop.run_in_executor(
             None,
             lambda: subprocess.Popen(
@@ -152,7 +182,7 @@ class Backend:
             ),
         )
         while True:
-            out = open("/tmp/install.log").readlines()
+            out = await (aiofiles.open("/tmp/install.log")).readlines()
             print(len(out) / len(self._expected_debootstrap_output) * 100)
             print(len(out) / len(self._expected_debootstrap_output) * 10)
             line = out[-1].strip()
@@ -226,7 +256,7 @@ class Backend:
         while True:
             line = postchroot.stderr.readline().decode("UTF-8").strip()
             if line:
-                open("/tmp/marsoo", "a").write(f"{line}\n")
+                await (await aiofiles.open("/tmp/marsoo", "a")).write(f"{line}\n")
 
             # line = out[-1].strip()
             try:
