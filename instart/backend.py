@@ -3,7 +3,6 @@ import json
 import os
 import subprocess
 import pygit2
-import aiofiles
 
 from functools import partial
 from PySide2.QtWidgets import QProgressBar, QLabel, QWidget
@@ -182,7 +181,7 @@ class Backend:
         self.setProgress(0, "Installazione del sistema base Debian.")
         out = []
         print("a")
-        await (await aiofiles.open("/tmp/install.log", "w")).write("\n")
+        open("/tmp/install.log", "w").write("\n")
         running = await self.loop.run_in_executor(
             None,
             lambda: subprocess.Popen(
@@ -193,7 +192,7 @@ class Backend:
             ),
         )
         while True:
-            out = await (await aiofiles.open("/tmp/install.log")).readlines()
+            out = open("/tmp/install.log").readlines()
             print(len(out) / len(self._expected_debootstrap_output) * 100)
             print(len(out) / len(self._expected_debootstrap_output) * 10)
             line = out[-1].strip()
@@ -267,7 +266,7 @@ class Backend:
         while True:
             line = postchroot.stderr.readline().decode("UTF-8").strip()
             if line:
-                await (await aiofiles.open("/tmp/marsoo", "a")).write(f"{line}\n")
+                open("/tmp/marsoo", "a").write(f"{line}\n")
 
             # line = out[-1].strip()
             try:
