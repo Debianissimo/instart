@@ -126,34 +126,10 @@ class Backend:
         coso = await self.loop.run_in_executor(None, partial(pygit2.discover_repository, "/usr/share/instart"))
         repo = await self.loop.run_in_executor(None, partial(pygit2.init_repository, coso))
         stat: dict = await self.loop.run_in_executor(None, partial(repo.status))
-        gitignore = await (await aiofiles.open("/usr/share/instart/.gitignore")).readlines()
-        toremove = set()
-
-        for line in gitignore:
-            await asyncio.sleep(0)
-            line = line.strip(" \n")
-            if line.startswith("#") or not line:
-                continue
-
-            if line.endswith("/"):
-                line = "*/" + line
-
-            line = line.replace("*", ".*([a-zA-Z]+)")
-
-            comp = re.compile(line)
-            new = list(filter(comp.match, stat))
-            for to_add_in_toremove in new:
-                await asyncio.sleep(0)
-
-                toremove.add(to_add_in_toremove)
-            
-        for tr in toremove:
-            stat.pop(tr)
-        
-        print(stat)
-
-
-        return bool(stat)
+        upstream = await self.loop.run_in_executor(None, partial(repo.revparse_single, "origin/HEAD"))
+        local = await self.loop.run_in_executor(None, partial(repo.revparse_single, "HEAD"))
+        _, has_to_update = await self.loop.run_in_executor(None, partial(repo.ahead_behind, local.id, upstream.id))
+        return bool(has_to_update)
 
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar
