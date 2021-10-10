@@ -193,7 +193,7 @@ class Backend:
             ),
         )
         while True:
-            out = await (aiofiles.open("/tmp/install.log")).readlines()
+            out = await (await aiofiles.open("/tmp/install.log")).readlines()
             print(len(out) / len(self._expected_debootstrap_output) * 100)
             print(len(out) / len(self._expected_debootstrap_output) * 10)
             line = out[-1].strip()
