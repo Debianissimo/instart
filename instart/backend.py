@@ -127,8 +127,6 @@ class Backend:
             subprocess.Popen,
                 "sudo git pull",
                 shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
             
         ))
         poll = update.poll()
@@ -143,8 +141,6 @@ class Backend:
             subprocess.Popen,
                 "sudo pip3.7 install -Ue .",
                 shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
             
         ))
         poll = deps.poll()
