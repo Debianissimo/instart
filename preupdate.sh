@@ -1,2 +1,2 @@
 #!/bin/bash
-echo placeholder
+sudo apt install debootstrap
