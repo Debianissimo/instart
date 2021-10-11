@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import parted
+import os
 
+ty = "gpt" if os.path.exists("/sys/firmware/efi") else "msdos"
 
 def partition(device):
     device = parted.getDevice(device)
-    disk = parted.newDisk(device)
+    disk = parted.freshDisk(device, ty)
 
     disk.deleteAllPartitions()
 
