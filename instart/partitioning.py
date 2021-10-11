@@ -3,7 +3,8 @@
 import parted
 import os
 
-ty = "gpt" if os.path.exists("/sys/firmware/efi") else "msdos"
+efi = os.path.exists("/sys/firmware/efi")
+ty = "gpt" if efi else "msdos"
 
 
 def partition(device):
@@ -12,10 +13,15 @@ def partition(device):
 
     disk.deleteAllPartitions()
 
+    partition_type = parted.PARTITION_NORMAL if efi else parted.PARTITION_LOGICAL
+    geometry_extended = None
+    extended = None
+
     geometry_root = parted.Geometry(device=device, start=2048, end=32901119)
-    geometry_extended = parted.Geometry(
-        device=device, start=32901120, end=disk.getFreeSpaceRegions()[-1].end
-    )
+    if not efi:
+        geometry_extended = parted.Geometry(
+            device=device, start=32901120, end=disk.getFreeSpaceRegions()[-1].end
+        )
     geometry_swap = parted.Geometry(device=device, start=32903168, end=37029888)
     geometry_var = parted.Geometry(device=device, start=37031936, end=99946495)
     geometry_secours = parted.Geometry(device=device, start=99944448, end=102041599)
@@ -37,36 +43,38 @@ def partition(device):
         geometry=geometry_root,
     )
 
-    extended = parted.Partition(
-        disk=disk,
-        type=parted.PARTITION_EXTENDED,
-        fs=filesystem_extended,
-        geometry=geometry_extended,
-    )
+    if not efi:
+        extended = parted.Partition(
+            disk=disk,
+            type=parted.PARTITION_EXTENDED,
+            fs=filesystem_extended,
+            geometry=geometry_extended,
+        )
+
     swap = parted.Partition(
         disk=disk,
-        type=parted.PARTITION_LOGICAL,
+        type=partition_type,
         fs=filesystem_swap,
         geometry=geometry_swap,
     )
 
     var = parted.Partition(
         disk=disk,
-        type=parted.PARTITION_LOGICAL,
+        type=partition_type,
         fs=filesystem_var,
         geometry=geometry_var,
     )
 
     secours = parted.Partition(
         disk=disk,
-        type=parted.PARTITION_LOGICAL,
+        type=partition_type,
         fs=filesystem_secours,
         geometry=geometry_secours,
     )
 
     home = parted.Partition(
         disk=disk,
-        type=parted.PARTITION_LOGICAL,
+        type=partition_type,
         fs=filesystem_home,
         geometry=geometry_home,
     )
@@ -74,5 +82,8 @@ def partition(device):
     partitions = [root, extended, swap, var, secours, home]
 
     for part in partitions:
+        if not part:
+            continue
+        
         disk.addPartition(partition=part, constraint=device.minimalAlignedConstraint)
     return disk.commit()
