@@ -46,12 +46,21 @@ class Backend:
         self.disk = ""
 
     async def partition(self):
-        disks = {
-            1: {"label": "root", "path": ""},
-            6: {"label": "var", "path": "/var"},
-            7: {"label": "secours", "path": "/mnt/secours"},
-            8: {"label": "home", "path": "/home"},
-        }
+        efi = os.path.exists("/sys/firmware/efi")
+        if efi:
+            disks = {
+                1: {"label": "root", "path": ""},
+                3: {"label": "var", "path": "/var"},
+                4: {"label": "secours", "path": "/mnt/secours"},
+                5: {"label": "home", "path": "/home"},
+            }
+        else:
+            disks = {
+                1: {"label": "root", "path": ""},
+                6: {"label": "var", "path": "/var"},
+                7: {"label": "secours", "path": "/mnt/secours"},
+                8: {"label": "home", "path": "/home"},
+            }
         try:
             await self.loop.run_in_executor(
                 None, lambda: os.system("sudo umount -Rfl /target; sudo rm -rf /target")
