@@ -14,7 +14,8 @@ def partition(device):
     disk.deleteAllPartitions()
 
     partition_type = parted.PARTITION_NORMAL if efi else parted.PARTITION_LOGICAL
-    geometry_extended = None
+    geometry_extended = disk.getFreeSpaceRegions()[-1]
+    filesystem_extended = None
     extended = None
 
     geometry_root = parted.Geometry(device=device, start=2048, end=32901119)
@@ -22,6 +23,7 @@ def partition(device):
         geometry_extended = parted.Geometry(
             device=device, start=32901120, end=disk.getFreeSpaceRegions()[-1].end
         )
+
     geometry_swap = parted.Geometry(device=device, start=32903168, end=37029888)
     geometry_var = parted.Geometry(device=device, start=37031936, end=99946495)
     geometry_secours = parted.Geometry(device=device, start=99944448, end=102041599)
@@ -30,7 +32,9 @@ def partition(device):
     )
 
     filesystem_root = parted.FileSystem(type="ext4", geometry=geometry_root)
-    filesystem_extended = parted.FileSystem(type="ext4", geometry=geometry_extended)
+    if not efi:
+        filesystem_extended = parted.FileSystem(type="ext4", geometry=geometry_extended)
+
     filesystem_swap = parted.FileSystem(type="linux-swap(v1)", geometry=geometry_swap)
     filesystem_var = parted.FileSystem(type="ext4", geometry=geometry_var)
     filesystem_secours = parted.FileSystem(type="ext4", geometry=geometry_secours)
@@ -84,6 +88,6 @@ def partition(device):
     for part in partitions:
         if not part:
             continue
-        
+
         disk.addPartition(partition=part, constraint=device.minimalAlignedConstraint)
     return disk.commit()
