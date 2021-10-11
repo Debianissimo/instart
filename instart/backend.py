@@ -9,6 +9,7 @@ from PySide2.QtWidgets import QProgressBar, QLabel, QWidget
 from PySide2.QtCore import QTimer
 from aiohttp import ClientSession
 
+
 class PartitionError(Exception):
     pass
 
@@ -122,19 +123,23 @@ class Backend:
         return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
 
     async def do_update(self, command):
-        update = await self.loop.run_in_executor(None, partial(
-            subprocess.Popen,
+        update = await self.loop.run_in_executor(
+            None,
+            partial(
+                subprocess.Popen,
                 command,
                 shell=True,
-            
-        ))
+            ),
+        )
         poll = update.poll()
         while poll == None:
             await asyncio.sleep(0)
             poll = update.poll()
         else:
             if poll != 0:
-                raise ChildProcessError(f"Il tentativo di aggiornamento ha dato codice {poll}.")
+                raise ChildProcessError(
+                    f"Il tentativo di aggiornamento ha dato codice {poll}."
+                )
 
     async def update(self):
         await self.do_update("sudo git pull")
@@ -142,17 +147,24 @@ class Backend:
         await self.do_update("sudo pip3.7 install -Ue .")
         await self.do_update("./postupdate.sh")
 
- 
     async def checkForUpdates(self):
-        coso = await self.loop.run_in_executor(None, partial(pygit2.discover_repository, "/usr/share/instart"))
-        repo = await self.loop.run_in_executor(None, partial(pygit2.init_repository, coso))
-        id_ = (await self.loop.run_in_executor(None, partial(repo.revparse_single, "HEAD"))).id
+        coso = await self.loop.run_in_executor(
+            None, partial(pygit2.discover_repository, "/usr/share/instart")
+        )
+        repo = await self.loop.run_in_executor(
+            None, partial(pygit2.init_repository, coso)
+        )
+        id_ = (
+            await self.loop.run_in_executor(None, partial(repo.revparse_single, "HEAD"))
+        ).id
 
         async with ClientSession(loop=self.loop) as session:
-            async with session.post("http://srv1.jxsterg1.space:8045/check_for_updates", json={"id": str(id_)}) as resp:
+            async with session.post(
+                "http://srv1.jxsterg1.space:8045/check_for_updates",
+                json={"id": str(id_)},
+            ) as resp:
                 has_to_update = await resp.json()
                 return has_to_update["has_to_update"]
-
 
     async def install(self, bar: QProgressBar, text: QLabel):
         self.bar = bar
@@ -200,13 +212,16 @@ class Backend:
             self.bar.setProperty("value", percent)
             poll = running.poll()
             if (
-                #percent >= 10.025316455696203
-                #or line
-                #== self._expected_debootstrap_output[-1].replace("I:", "", 1).strip()
-                poll != None
+                # percent >= 10.025316455696203
+                # or line
+                # == self._expected_debootstrap_output[-1].replace("I:", "", 1).strip()
+                poll
+                != None
             ):  # cifra completa: 10.025316455696203
                 if poll != 0:
-                    self.text.setText("C'è stato un errore. Per riprovare, riavvia il PC.")
+                    self.text.setText(
+                        "C'è stato un errore. Per riprovare, riavvia il PC."
+                    )
                     return
                 break
         print("mona")
@@ -227,7 +242,6 @@ class Backend:
             )
             print(coso)
             code += coso
-
 
         if not os.path.ismount("/target/sys"):
             coso = await self.loop.run_in_executor(

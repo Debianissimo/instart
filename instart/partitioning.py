@@ -5,6 +5,7 @@ import os
 
 ty = "gpt" if os.path.exists("/sys/firmware/efi") else "msdos"
 
+
 def partition(device):
     device = parted.getDevice(device)
     disk = parted.freshDisk(device, ty)

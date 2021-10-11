@@ -142,7 +142,9 @@ class MyWidget(QtWidgets.QWidget):
         self.subProgressText = QtWidgets.QLabel()
         self.subProgressText.setFont(font)
         self.subProgressText.setWordWrap(True)
-        self.textBelowLoading = QtWidgets.QLabel(alignment=QtCore.Qt.AlignHCenter|QtCore.Qt.AlignTop)
+        self.textBelowLoading = QtWidgets.QLabel(
+            alignment=QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop
+        )
         self.textBelowLoading.setStyleSheet("font-size: 20px")
         self.progressBar.setFormat("Progresso: %p%")
         self.isloading = False
@@ -425,7 +427,7 @@ class MyWidget(QtWidgets.QWidget):
         for itm in itms:
             self.qlayout.removeItem(itm)
 
-        align = QtCore.Qt.AlignHCenter|QtCore.Qt.AlignBottom
+        align = QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom
 
         self.mainlayout.addWidget(self.loading_anim, alignment=align)
         self.mainlayout.addWidget(self.textBelowLoading)
@@ -445,7 +447,7 @@ class MyWidget(QtWidgets.QWidget):
         self.mainlayout.removeWidget(self.textBelowLoading)
         self.textBelowLoading.hide()
         self.loading_anim.hide()
-        
+
         self.isloading = False
 
     @asyncSlot()
@@ -453,11 +455,11 @@ class MyWidget(QtWidgets.QWidget):
         try:
             self.loop.call_later(10, self.future.cancel)
             self.future.cancel()
-        # try:
-        #    for task in asyncio.all_tasks(loop):
-        #        task.cancel()
-        # except asyncio.CancelledError:
-        #   pass
+            # try:
+            #    for task in asyncio.all_tasks(loop):
+            #        task.cancel()
+            # except asyncio.CancelledError:
+            #   pass
             self.app.quit()
             self.loop.stop()
         except asyncio.CancelledError:
@@ -470,7 +472,9 @@ class MyWidget(QtWidgets.QWidget):
         self.startLoading()
         if not self.started:
             self.started = True
-            self.startLoading("Sto controllando se ci sono aggiornamenti per l'installer...")
+            self.startLoading(
+                "Sto controllando se ci sono aggiornamenti per l'installer..."
+            )
             hasUpdates = await self.backend.checkForUpdates()
             if hasUpdates:
                 errors = False
