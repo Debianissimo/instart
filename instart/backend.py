@@ -121,10 +121,10 @@ class Backend:
     def reboo(*args, **kwargs):
         return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
 
-    async def update(self):
+    async def do_update(self, command):
         update = await self.loop.run_in_executor(None, partial(
             subprocess.Popen,
-                "sudo git pull",
+                command,
                 shell=True,
             
         ))
@@ -136,19 +136,11 @@ class Backend:
             if poll != 0:
                 raise ChildProcessError(f"Il tentativo di aggiornamento ha dato codice {poll}.")
 
-        deps = await self.loop.run_in_executor(None, partial(
-            subprocess.Popen,
-                "sudo pip3.7 install -Ue .",
-                shell=True,
-            
-        ))
-        poll = deps.poll()
-        while poll == None:
-            await asyncio.sleep(0)
-            poll = deps.poll()
-        else:
-            if poll != 0:
-                raise ChildProcessError(f"Il tentativo di aggiornamento ha dato codice {poll}.")
+    async def update(self):
+        await self.do_update("sudo git pull")
+        await self.do_update("./preupdate.sh")
+        await self.do_update("sudo pip3.7 install -Ue .")
+        await self.do_update("./postupdate.sh")
 
  
     async def checkForUpdates(self):
