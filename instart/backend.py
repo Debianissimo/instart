@@ -100,6 +100,14 @@ class Backend:
                 if code != 0:
                     raise PartitionError
 
+        if await self.loop.run_in_executor(
+            None,
+            lambda: os.system(
+                f"sudo mkfs.vfat -F {self.disk}{n}"
+            ),
+        ) != 0:
+            raise PartitionError
+
     async def disks(self):
         disks = [
             a

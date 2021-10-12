@@ -10,9 +10,24 @@ from hurry.filesize import size, alternative
 os.environ["DEBIAN_FRONTEND"] = "noninteractive"
 
 os.chroot("/target")
+
+# --- dopo il chroot ---
+
 os.chdir("/")
 if os.path.exists("/etc/fstab"):
     os.remove("/etc/fstab")
+
+def do_rm_mtab():
+    os.remove("/etc/mtab")
+
+def fake_rm_mtab():
+    return
+
+rm_mtab = fake_rm_mtab
+
+if not os.path.exists("/etc/mtab"):
+    rm_mtab = do_rm_mtab
+    os.system("ln -sf /proc/mounts /etc/mtab")
 
 open("/tmp/marso", "w").write("")
 # marso = open("/tmp/marso", "ab")
@@ -167,4 +182,5 @@ cache.commit(install_progress=prog, fetch_progress=fprog)
 
 subprocess.run("lilo", shell=True)
 # '''
+rm_mtab()
 sendjson(status="finished", text="Installazione terminata.")
