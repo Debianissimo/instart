@@ -95,7 +95,7 @@ def partition(device):
     if efi:
         esp = parted.Partition(
             disk=disk,
-            type=parted.PARTITION_ESP,
+            type=partition_type,
             fs=filesystem_efi,
             geometry=geometry_efi
         )
@@ -107,4 +107,10 @@ def partition(device):
             continue
 
         disk.addPartition(partition=part, constraint=device.minimalAlignedConstraint)
-    return disk.commit()
+
+    cmt = disk.commit()
+    if efi:
+        esp.setFlag(18)
+        return disk.commit()
+
+    return cmt
