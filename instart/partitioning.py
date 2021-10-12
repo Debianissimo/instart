@@ -14,22 +14,30 @@ def partition(device):
     disk.deleteAllPartitions()
 
     partition_type = parted.PARTITION_NORMAL if efi else parted.PARTITION_LOGICAL
+    home_end = disk.getFreeSpaceRegions()[-1].end - 1000000
     geometry_extended = disk.getFreeSpaceRegions()[-1]
     filesystem_extended = None
     extended = None
+    geometry_efi = None
+    filesystem_efi = None
+    esp = None
 
     geometry_root = parted.Geometry(device=device, start=2048, end=32901119)
     if not efi:
         geometry_extended = parted.Geometry(
             device=device, start=32901120, end=disk.getFreeSpaceRegions()[-1].end
         )
-
+        home_end = geometry_extended.end
     geometry_swap = parted.Geometry(device=device, start=32903168, end=37029888)
     geometry_var = parted.Geometry(device=device, start=37031936, end=99946495)
     geometry_secours = parted.Geometry(device=device, start=99944448, end=102041599)
     geometry_home = parted.Geometry(
-        device=device, start=102043648, end=geometry_extended.end
+        device=device, start=102043648, end=home_end
     )
+    if efi:
+        geometry_efi = parted.Geometry(
+            device=device, start=home_end + 1, end=disk.getFreeSpaceRegions()[-1].end
+        )
 
     filesystem_root = parted.FileSystem(type="ext4", geometry=geometry_root)
     if not efi:
@@ -39,6 +47,8 @@ def partition(device):
     filesystem_var = parted.FileSystem(type="ext4", geometry=geometry_var)
     filesystem_secours = parted.FileSystem(type="ext4", geometry=geometry_secours)
     filesystem_home = parted.FileSystem(type="ext4", geometry=geometry_home)
+    if efi:
+        filesystem_efi = parted.FileSystem(type="vfat", geometry=geometry_efi)
 
     root = parted.Partition(
         disk=disk,
@@ -82,8 +92,15 @@ def partition(device):
         fs=filesystem_home,
         geometry=geometry_home,
     )
+    if efi:
+        esp = parted.Partition(
+            disk=disk,
+            type=parted.PARTITION_ESP,
+            fs=filesystem_efi,
+            geometry=geometry_efi
+        )
 
-    partitions = [root, extended, swap, var, secours, home]
+    partitions = [root, extended, swap, var, secours, home, esp]
 
     for part in partitions:
         if not part:
