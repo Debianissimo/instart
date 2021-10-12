@@ -48,7 +48,7 @@ def partition(device):
     filesystem_secours = parted.FileSystem(type="ext4", geometry=geometry_secours)
     filesystem_home = parted.FileSystem(type="ext4", geometry=geometry_home)
     if efi:
-        filesystem_efi = parted.FileSystem(type="vfat", geometry=geometry_efi)
+        filesystem_efi = parted.FileSystem(type="fat32", geometry=geometry_efi)
 
     root = parted.Partition(
         disk=disk,
