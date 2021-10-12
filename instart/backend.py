@@ -103,7 +103,7 @@ class Backend:
         if await self.loop.run_in_executor(
             None,
             lambda: os.system(
-                f"sudo mkfs.vfat -F {self.disk}{n}"
+                f"sudo mkfs.vfat {self.disk}6"
             ),
         ) != 0:
             raise PartitionError
