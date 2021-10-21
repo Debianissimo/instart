@@ -67,17 +67,19 @@ class Backend:
             )
         except Exception:
             pass
+
+        if (
+            await self.loop.run_in_executor(
+                None,
+                lambda: os.system(
+                    f"sudo python3 -c 'from instart.partitioning import partition; partition(\"{self.disk}\")'"
+                ),
+            )
+            != 0
+        ):
+            raise PartitionError
+
         for n, disk in disks.items():
-            if (
-                await self.loop.run_in_executor(
-                    None,
-                    lambda: os.system(
-                        f"sudo python3 -c 'from instart.partitioning import partition; partition(\"{self.disk}\")'"
-                    ),
-                )
-                != 0
-            ):
-                raise PartitionError
             await self.loop.run_in_executor(
                 None, lambda: os.system(f"sudo mkdir -p /target{disk['path']}")
             )
@@ -100,13 +102,14 @@ class Backend:
                 if code != 0:
                     raise PartitionError
 
-        if await self.loop.run_in_executor(
-            None,
-            lambda: os.system(
-                f"sudo mkfs.vfat {self.disk}6"
-            ),
-        ) != 0:
-            raise PartitionError
+        if efi:
+            if await self.loop.run_in_executor(
+                None,
+                lambda: os.system(
+                    f"sudo mkfs.vfat {self.disk}6"
+                ),
+            ) != 0:
+                raise PartitionError
 
     async def disks(self):
         disks = [
