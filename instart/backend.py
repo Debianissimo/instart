@@ -45,6 +45,16 @@ class Backend:
         # self.password = "b3JkaXNzaW1v"
         self.disk = ""
 
+    async def umount_media_ordissimo(self):
+        if os.path.exists("/media/ordissimo"):
+            for path in os.listdir("/media/ordissimo"):
+                await self.loop.run_in_executor(
+                    None,
+                    lambda: os.system(
+                        f"sudo umount -Rfl /media/ordissimo/{path}"
+                    )
+                )
+
     async def partition(self):
         efi = os.path.exists("/sys/firmware/efi")
         if efi:
@@ -67,6 +77,9 @@ class Backend:
             )
         except Exception:
             pass
+    
+        
+        await self.umount_media_ordissimo()
 
         if (
             await self.loop.run_in_executor(
@@ -79,7 +92,10 @@ class Backend:
         ):
             raise PartitionError
 
+
         for n, disk in disks.items():
+            print(n, disk)
+            await self.umount_media_ordissimo()
             await self.loop.run_in_executor(
                 None, lambda: os.system(f"sudo mkdir -p /target{disk['path']}")
             )
@@ -231,6 +247,7 @@ class Backend:
             # self.setProgress(sera, marso)
             self.bar.setProperty("value", percent)
             poll = running.poll()
+            print(poll)
             if (
                 # percent >= 10.025316455696203
                 # or line
