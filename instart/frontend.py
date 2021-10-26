@@ -70,7 +70,7 @@ class MyWidget(QtWidgets.QWidget):
         self.text = QtWidgets.QLabel(
             f"{self.hello}\n"
             "Benvenuto in Debianissimo!\n"
-            "Qui puoi installare Ordissimo OS sul tuo computer!\n"
+            "Se sei qui (complimenti!), allora vorrai installare Debianissimo!\n"
             "Per iniziare, clicca sul pulsante Inizia qui sotto.",
             alignment=QtCore.Qt.AlignCenter,
         )
@@ -106,10 +106,10 @@ class MyWidget(QtWidgets.QWidget):
         self.subtitle.setFont(font)
         self.subtitle.setWordWrap(True)
         self.label_3 = QtWidgets.QLabel(
-            'Ora inserisci la password dell\'utente che verrà creato. Quella predefinita è "ordissimo"'
+            "Imposta una password per l'utente. La predefenita è 'ordissimo'."
         )  # dove mettiamo?
         self.label_3.setFont(font)
-        self.label_4 = QtWidgets.QLabel("Ora inserisci il nome utente Linux.")
+        self.label_4 = QtWidgets.QLabel("Ora inserisci il nome utente dell'account.")
         self.label_4.setFont(font)
         self.listWidget = QtWidgets.QListWidget()
         self.listWidget.setFont(font)
@@ -261,7 +261,7 @@ class MyWidget(QtWidgets.QWidget):
         self.title.setText("Installazione del sistema...")
         self.subtitle.setText(
             "Sto installando il sistema Ordissimo con gli strumenti Debianissimo. "
-            "Potrebbe volerci un po' visto che sto installando anche i pacchetti "
+            "Potrebbe volerci un po' visto che sto installando anche le applicazioni "
             "che puoi trovare nello store."
         )
         self.stopLoading()
@@ -288,7 +288,7 @@ class MyWidget(QtWidgets.QWidget):
         self.subtitle.setText(
             "Sei sicuro di aver scelto il disco giusto? Il disco selezionato verrà formattato, "
             "quindi, dopo questa operazione, perderai TUTTI i dati presenti su quel disco!\n"
-            "Noi non ci assumiamo alcuna responsabilità di quello che fai. Il tuo computer è il tuo computer."
+            "Se a causa di un tuo errore scoppia una guerra nucleare, non è colpa nostra!"
         )
         self.backbutton.setText("‹ No")
         self.nextbutton.setText("Sì ›")
@@ -478,7 +478,7 @@ class MyWidget(QtWidgets.QWidget):
             hasUpdates = await self.backend.checkForUpdates()
             if hasUpdates:
                 errors = False
-                self.startLoading("Sto eseguendo gli aggiornamenti per l'installer...")
+                self.startLoading("Sto aggiornando l'installer...")
                 try:
                     await self.backend.update()
                 except ChildProcessError:
@@ -487,14 +487,13 @@ class MyWidget(QtWidgets.QWidget):
                 self.stopLoading()
                 self.text.setText(
                     "Aggiornamento dell'installer completato!\n"
-                    "Ora, chiudi l'installer (NON il sistema!) cliccando\n"
+                    "Ora, chiudi questa applicazione cliccando\n"
                     "il pulsante qui sotto, dopodichè avvia di nuovo l'app."
                 )
                 if errors:
                     self.text.setText(
                         "C'è stato un problema aggiornando l'installer.\n"
                         "Per favore, segnala questo problema agli sviluppatori.\n"
-                        "Al momento non potrai installare Debianissimo."
                     )
                 self.nextbutton.setText("Chiudi")
                 self.nextbutton.clicked.connect(self.closeApp)
