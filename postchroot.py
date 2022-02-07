@@ -117,7 +117,7 @@ open("/etc/apt/sources.list", "w").write(
     """
 deb [arch=amd64] http://substantielwww.dyndns.org sr2018-stable main non-free
 deb-src http://substantielwww.dyndns.org          sr2018-stable main non-free
-deb [arch=amd64] http://cdn.debianissimo.cf/repos debianissimo  main
+deb [arch=amd64] http://cdn.debianissimo.it/repos debianissimo  main
 # Uncommenta questa repo se vuoi usare i pacchetti dell'archivio Debian.
 # ATTENZIONE: Potrebbe rompere il sistema.
 #deb [arch=amd64] http://deb.debian.org/debian stretch main non-free contrib
