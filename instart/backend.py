@@ -361,3 +361,4 @@ class Backend:
             bar.setProperty("value", percent)
 
         print("HO ROTTO IL SISTEMA")
+        self.reboo()
