@@ -44,9 +44,6 @@ class Backend:
         # self.username = "ordissimo"
         # self.password = "b3JkaXNzaW1v"
         self.disk = ""
-        
-    def reboo(*args, **kwargs):
-        return subprocess.run("sudo eject -rsfqm; sudo reboot -f", shell=True)
 
     async def umount_media_ordissimo(self):
         if os.path.exists("/media/ordissimo"):
